@@ -606,17 +606,25 @@
         const db = getFirestore(app);
 
         // Function to fetch and display projects
-        async function loadProjects() {
-            const projectsContainer = document.getElementById('projectsContainer');
-            projectsContainer.innerHTML = '<div class="col-span-3 text-center py-12"><div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-cyan-500"></div></div>';
-            
-            try {
-                const querySnapshot = await getDocs(collection(db, "projects"));
-                projectsContainer.innerHTML = '';
-                
-                querySnapshot.forEach((doc) => {
-                    const project = doc.data();
-                    const projectCard = `
+       async function loadProjects() {
+    const projectsContainer = document.getElementById('projectsContainer');
+    projectsContainer.innerHTML = '<div class="col-span-3 text-center py-12"><div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-cyan-500"></div></div>';
+
+    try {
+        const querySnapshot = await getDocs(collection(db, "projects"));
+        const projects = [];
+        
+        querySnapshot.forEach((doc) => {
+            projects.push(doc.data());
+        });
+
+        // Sort projects by ID (ascending order: 0, 1, 2...)
+        projects.sort((a, b) => a.id - b.id);
+
+        projectsContainer.innerHTML = '';
+        
+        projects.forEach((project) => {
+            const projectCard = `
                         <div class="bg-gray-800/40 backdrop-blur-lg rounded-2xl overflow-hidden border border-gray-700/50 hover:border-${project.accentColor}-400/30 transition-all duration-500 group hover:-translate-y-2 shadow-xl hover:shadow-2xl hover:shadow-${project.accentColor}-500/10">
                             <div class="h-60 overflow-hidden relative">
                                 <div class="absolute inset-0 bg-gradient-to-t from-gray-900/80 to-transparent z-10"></div>
@@ -669,18 +677,18 @@
                             </div>
                         </div>
                     `;
-                    projectsContainer.innerHTML += projectCard;
-                });
-                
-                if (querySnapshot.size === 0) {
-                    projectsContainer.innerHTML = '<div class="col-span-3 text-center py-12 text-gray-400">No projects found. Check back later!</div>';
-                }
-            } catch (error) {
-                console.error("Error loading projects:", error);
-                projectsContainer.innerHTML = '<div class="col-span-3 text-center py-12 text-red-400">Failed to load projects. Please try again later.</div>';
-            }
-        }
+                    ;
+            projectsContainer.innerHTML += projectCard;
+        });
 
+        if (projects.length === 0) {
+            projectsContainer.innerHTML = '<div class="col-span-3 text-center py-12 text-gray-400">No projects found. Check back later!</div>';
+        }
+    } catch (error) {
+        console.error("Error loading projects:", error);
+        projectsContainer.innerHTML = '<div class="col-span-3 text-center py-12 text-red-400">Failed to load projects. Please try again later.</div>';
+    }
+}
         // Handle form submission
         document.addEventListener('DOMContentLoaded', function() {
             loadProjects();
