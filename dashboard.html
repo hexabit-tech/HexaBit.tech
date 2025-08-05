@@ -208,7 +208,7 @@
     <script>
         // Firebase configuration
         const firebaseConfig = {
-         apiKey: "AIzaSyAVnIlmFWj-NMEToWMVl0ezMELDqQpGzOM",
+            apiKey: "AIzaSyAVnIlmFWj-NMEToWMVl0ezMELDqQpGzOM",
             authDomain: "hexabit-6464d.firebaseapp.com",
             projectId: "hexabit-6464d",
             storageBucket: "hexabit-6464d.appspot.com",
@@ -389,7 +389,7 @@
                     row.innerHTML = `
                         <td class="px-6 py-4 whitespace-nowrap">${item.name || 'N/A'}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${item.email || 'N/A'}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">${item.service || 'N/A'}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${item.subject || 'N/A'}</td>
                         <td class="px-6 py-4 max-w-xs truncate">${item.message || 'N/A'}</td>
                         <td class="px-6 py-4 whitespace-nowrap">${formatFirestoreDate(item.created_at)}</td>
                         <td class="px-6 py-4 whitespace-nowrap">
