@@ -475,7 +475,7 @@
                             
                             <div>
                                 <label for="service" class="block text-sm font-medium text-gray-300 mb-1">Service Needed</label>
-                                <select id="service" class="w-full bg-gray-800 border border-gray-700 rounded-md px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent">
+                                <select id="service" class="w-full bg-gray-800 border border-gray-700 rounded-md px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent" required>
                                     <option value="general">General Inquiry</option>
                                     <option value="development">Custom Development</option>
                                     <option value="Website">Website Development</option>
@@ -484,6 +484,7 @@
                                     <option value="consulting">Consulting</option>
                                     <option value="other">Other</option>
                                 </select>
+                                <div id="serviceError" class="text-red-400 text-sm hidden">Please select a service</div>
                             </div>
                             
                             <div>
