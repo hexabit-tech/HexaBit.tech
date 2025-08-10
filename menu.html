@@ -196,9 +196,9 @@
             <!-- Price and button -->
             <div class="flex items-center justify-between mt-3">
                 <p class="font-bold text-primary-600 dark:text-primary-400 text-sm">$8.99</p>
-                <button class="bg-primary-500 hover:bg-primary-600 text-white px-3 py-1 rounded-full text-xs transition-colors">
-                    Add to Cart
-                </button>
+                <button class="add-to-cart-btn bg-primary-500 hover:bg-primary-600 text-white px-3 py-1 rounded-full text-xs transition-colors">
+                  Add to Cart
+              </button>
             </div>
         </div>
 
@@ -226,9 +226,9 @@
             <!-- Price and button -->
             <div class="flex items-center justify-between mt-3">
                 <p class="font-bold text-primary-600 dark:text-primary-400 text-sm">$10.99</p>
-                <button class="bg-primary-500 hover:bg-primary-600 text-white px-3 py-1 rounded-full text-xs transition-colors">
-                    Add to Cart
-                </button>
+                <button class="add-to-cart-btn bg-primary-500 hover:bg-primary-600 text-white px-3 py-1 rounded-full text-xs transition-colors">
+                  Add to Cart
+              </button>
             </div>
         </div>
 
@@ -257,9 +257,9 @@
             <!-- Price and button -->
             <div class="flex items-center justify-between mt-3">
                 <p class="font-bold text-primary-600 dark:text-primary-400 text-sm">$9.99</p>
-                <button class="bg-primary-500 hover:bg-primary-600 text-white px-3 py-1 rounded-full text-xs transition-colors">
-                    Add to Cart
-                </button>
+                <button class="add-to-cart-btn bg-primary-500 hover:bg-primary-600 text-white px-3 py-1 rounded-full text-xs transition-colors">
+                  Add to Cart
+              </button>
             </div>
         </div>
     </div>
@@ -335,9 +335,9 @@
             <!-- Price and button -->
             <div class="flex items-center justify-between mt-3">
                 <p class="font-bold text-primary-600 dark:text-primary-400 text-sm">$10.99</p>
-                <button class="bg-primary-500 hover:bg-primary-600 text-white px-3 py-1 rounded-full text-xs transition-colors">
-                    Add to Cart
-                </button>
+                <button class="add-to-cart-btn bg-primary-500 hover:bg-primary-600 text-white px-3 py-1 rounded-full text-xs transition-colors">
+                  Add to Cart
+              </button>
             </div>
         </div>
 
@@ -366,9 +366,9 @@
             <!-- Price and button -->
             <div class="flex items-center justify-between mt-3">
                 <p class="font-bold text-primary-600 dark:text-primary-400 text-sm">$9.99</p>
-                <button class="bg-primary-500 hover:bg-primary-600 text-white px-3 py-1 rounded-full text-xs transition-colors">
-                    Add to Cart
-                </button>
+                <button class="add-to-cart-btn bg-primary-500 hover:bg-primary-600 text-white px-3 py-1 rounded-full text-xs transition-colors">
+                  Add to Cart
+              </button>
             </div>
         </div>
     </div>
@@ -1097,13 +1097,17 @@ document.addEventListener('DOMContentLoaded', function() {
             if (button.textContent.trim() === 'Add to Cart') {
                 button.innerHTML = `
                     <div class="flex items-center">
-                        <button class="decrease-btn px-2">-</button>
-                        <span class="quantity px-2">1</span>
-                        <button class="increase-btn px-2">+</button>
+                        <button class="decrease-btn px-2 text-primary-600 dark:text-primary-400">-</button>
+                        <span class="quantity px-2 text-primary-600 dark:text-primary-400">1</span>
+                        <button class="increase-btn px-2 text-primary-600 dark:text-primary-400">+</button>
                     </div>
                 `;
-                button.classList.remove('bg-primary-500', 'hover:bg-primary-600');
-                button.classList.add('bg-white', 'dark:bg-gray-700', 'text-primary-600', 'dark:text-primary-400');
+                button.classList.remove('bg-primary-500', 'hover:bg-primary-600', 'text-white');
+                button.classList.add(
+                    'bg-white', 'dark:bg-gray-700', 
+                    'text-primary-600', 'dark:text-primary-400',
+                    'border', 'border-primary-500', 'dark:border-primary-400'
+                );
             }
         }
         
@@ -1123,10 +1127,14 @@ document.addEventListener('DOMContentLoaded', function() {
             if (quantity > 1) {
                 quantitySpan.textContent = quantity - 1;
             } else {
-                // If quantity is 1 and we decrease, revert to "Add to Cart"
+                // Revert to "Add to Cart"
                 const button = e.target.closest('.add-to-cart-btn');
                 button.innerHTML = 'Add to Cart';
-                button.classList.remove('bg-white', 'dark:bg-gray-700', 'text-primary-600', 'dark:text-primary-400');
+                button.classList.remove(
+                    'bg-white', 'dark:bg-gray-700',
+                    'text-primary-600', 'dark:text-primary-400',
+                    'border', 'border-primary-500', 'dark:border-primary-400'
+                );
                 button.classList.add('bg-primary-500', 'hover:bg-primary-600', 'text-white');
             }
         }
