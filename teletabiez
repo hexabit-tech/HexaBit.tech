@@ -54,7 +54,7 @@
 </head>
 <body>
   <!-- Fullscreen image -->
-  <img class="full-image" src="images/adam.jpg" alt="Full Page Image">
+  <img class="full-image" src="images/IMG_2864.JPG" alt="Full Page Image">
 
   <!-- Embedded YouTube music -->
   <div class="video-wrapper">
