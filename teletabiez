@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Animated Full Image with Music</title>
+  <style>
+    /* Reset margins, padding, full height */
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+      background: black;
+    }
+
+    /* Fullscreen image with zoom-in animation */
+    .full-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      animation: zoomIn 15s ease-in-out forwards;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    @keyframes zoomIn {
+      from {
+        transform: scale(1);
+      }
+      to {
+        transform: scale(1.1);
+      }
+    }
+
+    /* Container for YouTube embed */
+    .video-wrapper {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      width: 320px;
+      height: 180px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+      overflow: hidden;
+      border-radius: 8px;
+    }
+
+    .video-wrapper iframe {
+      width: 100%;
+      height: 100%;
+    }
+  </style>
+</head>
+<body>
+  <!-- Fullscreen image -->
+  <img class="full-image" src="images/adam.jpg" alt="Full Page Image">
+
+  <!-- Embedded YouTube music -->
+  <div class="video-wrapper">
+    <iframe src="https://www.youtube.com/embed/hjYbZ5lAPeI?autoplay=1&loop=1&playlist=hjYbZ5lAPeI"
+            frameborder="0"
+            allow="autoplay; encrypted-media"
+            allowfullscreen>
+    </iframe>
+  </div>
+</body>
+</html>
