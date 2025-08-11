@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Full Image + Music</title>
+  <meta charset="UTF-8" />
+  <title>Full-Page Image with Animation & Music</title>
   <style>
+    /* Ensure no margins and full viewport for body & html */
     html, body {
       margin: 0;
       padding: 0;
@@ -11,48 +12,43 @@
       overflow: hidden;
     }
 
-    .full-image {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      animation: zoomIn 15s ease-in-out forwards;
-      position: absolute;
-      top: 0;
-      left: 0;
+    /* Full-screen background image with fade-in animation */
+    body {
+      background: url('IMG_2864.jpg') no-repeat center center fixed;
+      background-size: cover;
+      animation: fadeIn 3s ease-in-out;
     }
 
-    @keyframes zoomIn {
-      from { transform: scale(1); }
-      to { transform: scale(1.1); }
-    }
-
-    .video-wrapper {
-      position: absolute;
-      bottom: 20px;
-      right: 20px;
-      width: 320px;
-      height: 180px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.5);
-      border-radius: 8px;
-      overflow: hidden;
-    }
-
-    .video-wrapper iframe {
-      width: 100%;
-      height: 100%;
+    /* Fade-in keyframes */
+    @keyframes fadeIn {
+      0%   { opacity: 0; }
+      100% { opacity: 1; }
     }
   </style>
 </head>
 <body>
-  <!-- Replace this with your actual image or use this one as demo -->
-  <img class="full-image" src="https:IMG_2864.JPG" alt="Background">
+  <!-- Audio element for background music (looped, autoplayed, muted allowed) -->
+  <audio id="bg-music" autoplay loop>
+    <source src="your-music.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
+  </audio>
 
-  <div class="video-wrapper">
-    <iframe src="https://www.youtube.com/embed/hjYbZ5lAPeI?autoplay=1&loop=1&playlist=hjYbZ5lAPeI&mute=1"
-            frameborder="0"
-            allow="autoplay; encrypted-media"
-            allowfullscreen>
-    </iframe>
-  </div>
+  <!-- Optional: A little script to fade audio volume in -->
+  <script>
+    const audio = document.getElementById('bg-music');
+    audio.volume = 0.0;
+    audio.play();
+    const fadeDuration = 5000; // duration in ms
+    const fadeStep = 0.01;
+    const interval = fadeDuration * fadeStep * 0.01;
+
+    const fadeInAudio = setInterval(() => {
+      if (audio.volume < 1.0) {
+        audio.volume = Math.min(audio.volume + fadeStep, 1.0);
+      } else {
+        clearInterval(fadeInAudio);
+      }
+    }, interval);
+  </script>
 </body>
 </html>
