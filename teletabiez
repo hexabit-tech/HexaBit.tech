@@ -2,19 +2,15 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Animated Full Image with Music</title>
+  <title>Full Image + Music</title>
   <style>
-    /* Reset margins, padding, full height */
     html, body {
       margin: 0;
       padding: 0;
       height: 100%;
       overflow: hidden;
-      background: black;
     }
 
-    /* Fullscreen image with zoom-in animation */
     .full-image {
       width: 100%;
       height: 100%;
@@ -26,15 +22,10 @@
     }
 
     @keyframes zoomIn {
-      from {
-        transform: scale(1);
-      }
-      to {
-        transform: scale(1.1);
-      }
+      from { transform: scale(1); }
+      to { transform: scale(1.1); }
     }
 
-    /* Container for YouTube embed */
     .video-wrapper {
       position: absolute;
       bottom: 20px;
@@ -42,8 +33,8 @@
       width: 320px;
       height: 180px;
       box-shadow: 0 0 10px rgba(0,0,0,0.5);
-      overflow: hidden;
       border-radius: 8px;
+      overflow: hidden;
     }
 
     .video-wrapper iframe {
@@ -53,12 +44,11 @@
   </style>
 </head>
 <body>
-  <!-- Fullscreen image -->
-  <img class="full-image" src="images/IMG_2864.JPG" alt="Full Page Image">
+  <!-- Replace this with your actual image or use this one as demo -->
+  <img class="full-image" src="https:IMG_2864.JPG" alt="Background">
 
-  <!-- Embedded YouTube music -->
   <div class="video-wrapper">
-    <iframe src="https://www.youtube.com/embed/hjYbZ5lAPeI?autoplay=1&loop=1&playlist=hjYbZ5lAPeI"
+    <iframe src="https://www.youtube.com/embed/hjYbZ5lAPeI?autoplay=1&loop=1&playlist=hjYbZ5lAPeI&mute=1"
             frameborder="0"
             allow="autoplay; encrypted-media"
             allowfullscreen>
