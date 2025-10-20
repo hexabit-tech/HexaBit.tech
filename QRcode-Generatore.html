@@ -388,16 +388,6 @@
       margin-top: 20px;
     }
 
-    /* Footer */
-    footer {
-      text-align: center;
-      padding: 20px;
-      color: var(--gray);
-      font-size: 14px;
-      width: 100%;
-      margin-top: auto;
-    }
-
     /* Font Controls */
     .font-controls {
       padding: 15px;
@@ -523,6 +513,140 @@
       .download-options {
         flex-direction: column;
       }
+    }
+
+    /* HexaBit Footer Styles */
+    .hexabit-footer {
+      background: #000;
+      border-top: 1px solid #374151;
+      width: 100%;
+      margin-top: auto;
+    }
+
+    .footer-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 48px 20px;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 32px;
+    }
+
+    @media (min-width: 768px) {
+      .footer-grid {
+        grid-template-columns: 2fr 1fr 1fr;
+      }
+    }
+
+    .footer-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+
+    .footer-logo img {
+      width: 48px;
+      height: 48px;
+      object-fit: contain;
+      padding: 4px;
+    }
+
+    .footer-logo span {
+      font-size: 20px;
+      font-weight: 700;
+      background: linear-gradient(90deg, #22d3ee, #a855f7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .footer-description {
+      color: #9ca3af;
+      margin-bottom: 24px;
+      line-height: 1.6;
+    }
+
+    .footer-social {
+      display: flex;
+      gap: 16px;
+    }
+
+    .footer-social a {
+      color: #9ca3af;
+      transition: color 0.3s ease;
+    }
+
+    .footer-social a:hover {
+      color: #22d3ee;
+    }
+
+    .footer-social i {
+      font-size: 20px;
+    }
+
+    .footer-heading {
+      color: white;
+      font-weight: 700;
+      font-size: 18px;
+      margin-bottom: 16px;
+    }
+
+    .footer-links {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .footer-links a {
+      color: #9ca3af;
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+
+    .footer-links a:hover {
+      color: #22d3ee;
+    }
+
+    .footer-bottom {
+      border-top: 1px solid #374151;
+      margin-top: 48px;
+      padding-top: 32px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    @media (min-width: 768px) {
+      .footer-bottom {
+        flex-direction: row;
+        justify-content: space-between;
+      }
+    }
+
+    .footer-copyright {
+      color: #9ca3af;
+      font-size: 14px;
+    }
+
+    .footer-legal {
+      display: flex;
+      gap: 24px;
+    }
+
+    .footer-legal a {
+      color: #9ca3af;
+      font-size: 14px;
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+
+    .footer-legal a:hover {
+      color: #22d3ee;
     }
   </style>
 </head>
@@ -776,11 +900,69 @@
         </div>
       </div>
     </div>
-
-    <footer>
-      <p class="lang" data-key="footerText">QR Code Generator &copy; 2023 | Create custom QR codes with colors and logos</p>
-    </footer>
   </div>
+
+  <!-- HexaBit Footer -->
+  <footer class="hexabit-footer">
+    <div class="footer-container">
+      <div class="footer-grid">
+        <div>
+          <div class="footer-logo">
+            <img src="https://via.placeholder.com/48x48/000000/FFFFFF?text=HB" alt="HexaBit Logo">
+            <span>HexaBit</span>
+          </div>
+          <p class="footer-description">
+            Professional programming services and IT technical support to help your business thrive in the digital world.
+          </p>
+          <div class="footer-social">
+            <a href="https://www.instagram.com/hexabit.tech?igsh=MWhvanR0dG8yaG41cw==" target="_blank" rel="noopener noreferrer">
+              <i class="fab fa-instagram"></i>
+            </a>
+            <a href="#">
+              <i class="fab fa-facebook"></i>
+            </a>
+            <a href="#">
+              <i class="fab fa-github"></i>
+            </a>
+            <a href="#">
+              <i class="fab fa-linkedin"></i>
+            </a>
+            <a href="#" target="_blank" rel="noopener noreferrer">
+              <i class="fab fa-youtube"></i>
+            </a>
+          </div>
+        </div>
+        
+        <div>
+          <h3 class="footer-heading">Services</h3>
+          <ul class="footer-links">
+            <li><a href="#">Custom Development</a></li>
+            <li><a href="#">Technical Support</a></li>
+            <li><a href="#">Database Solutions</a></li>
+            <li><a href="#">Network Solutions</a></li>
+          </ul>
+        </div>
+        
+        <div>
+          <h3 class="footer-heading">Company</h3>
+          <ul class="footer-links">
+            <li><a href="#">About Us</a></li>
+            <li><a href="#">Technologies</a></li>
+            <li><a href="#">Contact</a></li>
+            <li><a href="#">Privacy Policy</a></li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="footer-bottom">
+        <p class="footer-copyright">©2025 HexaBit. All rights reserved.</p>
+        <div class="footer-legal">
+          <a href="#">Terms of Service</a>
+          <a href="#">Privacy Policy</a>
+        </div>
+      </div>
+    </div>
+  </footer>
 
   <!-- QR Code Styling library -->
   <script src="https://cdn.jsdelivr.net/npm/qr-code-styling@1.5.0/lib/qr-code-styling.js"></script>
