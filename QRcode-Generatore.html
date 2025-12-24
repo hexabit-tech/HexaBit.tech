@@ -1,1514 +1,165 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>QR Code Generator</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  <style>
-    :root {
-      --primary: #4361ee;
-      --primary-dark: #3a56d4;
-      --secondary: #7209b7;
-      --accent: #f72585;
-      --light: #f8f9fa;
-      --dark: #212529;
-      --gray: #6c757d;
-      --success: #4cc9f0;
-      --border-radius: 12px;
-      --shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-      --transition: all 0.3s ease;
-    }
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-
-    body {
-      background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
-      color: var(--dark);
-      min-height: 100vh;
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    .container {
-      max-width: 1200px;
-      width: 100%;
-      margin: 0 auto;
-    }
-
-    /* Header Styles */
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 20px 0;
-      margin-bottom: 30px;
-      width: 100%;
-    }
-
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .logo i {
-      font-size: 28px;
-      color: var(--primary);
-    }
-
-    .logo h1 {
-      font-size: 24px;
-      font-weight: 700;
-      background: linear-gradient(90deg, var(--primary), var(--secondary));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .language-selector {
-      display: flex;
-      gap: 10px;
-    }
-
-    .lang-btn {
-      padding: 8px 16px;
-      border-radius: 20px;
-      background: white;
-      border: 1px solid #e0e0e0;
-      cursor: pointer;
-      font-weight: 500;
-      transition: var(--transition);
-    }
-
-    .lang-btn.active {
-      background: var(--primary);
-      color: white;
-      border-color: var(--primary);
-    }
-
-    /* Main Content */
-    .main-content {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 30px;
-      margin-bottom: 30px;
-    }
-
-    @media (max-width: 900px) {
-      .main-content {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    /* Card Styles */
-    .card {
-      background: white;
-      border-radius: var(--border-radius);
-      box-shadow: var(--shadow);
-      padding: 25px;
-      transition: var(--transition);
-    }
-
-    .card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-    }
-
-    .card-title {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 20px;
-      font-size: 18px;
-      font-weight: 600;
-      color: var(--primary);
-    }
-
-    .card-title i {
-      font-size: 20px;
-    }
-
-    /* Form Styles */
-    .form-group {
-      margin-bottom: 20px;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 8px;
-      font-weight: 500;
-      color: var(--dark);
-    }
-
-    input, textarea, select {
-      width: 100%;
-      padding: 12px 15px;
-      border-radius: 8px;
-      border: 1px solid #e0e0e0;
-      font-size: 15px;
-      transition: var(--transition);
-    }
-
-    input:focus, textarea:focus, select:focus {
-      outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
-    }
-
-    textarea {
-      resize: vertical;
-      min-height: 100px;
-    }
-
-    .color-row {
-      display: flex;
-      gap: 15px;
-    }
-
-    .color-input {
-      flex: 1;
-    }
-
-    .color-preview {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-top: 8px;
-    }
-
-    .color-box {
-      width: 30px;
-      height: 30px;
-      border-radius: 6px;
-      border: 1px solid #e0e0e0;
-    }
-
-    .color-value {
-      font-size: 14px;
-      color: var(--gray);
-    }
-
-    input[type="color"] {
-      height: 45px;
-      padding: 5px;
-      cursor: pointer;
-    }
-
-    input[type="range"] {
-      padding: 0;
-    }
-
-    .checkbox-group {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 15px;
-    }
-
-    input[type="checkbox"] {
-      width: 18px;
-      height: 18px;
-    }
-
-    .checkbox-label {
-      margin-bottom: 0;
-    }
-
-    .logo-controls {
-      padding: 15px;
-      background: #f8f9fa;
-      border-radius: 8px;
-      margin-top: 10px;
-    }
-
-    .file-input-wrapper {
-      position: relative;
-      overflow: hidden;
-      display: inline-block;
-      width: 100%;
-    }
-
-    .file-input-wrapper input[type=file] {
-      position: absolute;
-      left: 0;
-      top: 0;
-      opacity: 0;
-      width: 100%;
-      height: 100%;
-      cursor: pointer;
-    }
-
-    .file-input-btn {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      padding: 10px 15px;
-      background: var(--light);
-      border: 1px dashed #ced4da;
-      border-radius: 8px;
-      color: var(--gray);
-      transition: var(--transition);
-    }
-
-    .file-input-btn:hover {
-      background: #e9ecef;
-    }
-
-    .range-container {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-    }
-
-    .range-value {
-      min-width: 40px;
-      text-align: center;
-      font-weight: 500;
-    }
-
-    /* Button Styles */
-    .actions {
-      display: flex;
-      gap: 10px;
-      margin-top: 25px;
-    }
-
-    .btn {
-      padding: 12px 20px;
-      border-radius: 8px;
-      border: none;
-      font-weight: 600;
-      cursor: pointer;
-      transition: var(--transition);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      flex: 1;
-    }
-
-    .btn-primary {
-      background: var(--primary);
-      color: white;
-    }
-
-    .btn-primary:hover {
-      background: var(--primary-dark);
-    }
-
-    .btn-success {
-      background: var(--success);
-      color: white;
-    }
-
-    .btn-success:hover {
-      background: #3ab0d9;
-    }
-
-    .btn-outline {
-      background: transparent;
-      color: var(--gray);
-      border: 1px solid #e0e0e0;
-    }
-
-    .btn-outline:hover {
-      background: #f8f9fa;
-    }
-
-    /* Preview Styles */
-    .preview-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .preview-title {
-      margin-bottom: 20px;
-      text-align: center;
-    }
-
-    .qr-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      width: 100%;
-      max-width: 350px;
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-      border: 1px solid #f0f0f0;
-    }
-
-    .qr-text {
-      width: 100%;
-      text-align: center;
-      padding: 10px 0;
-      font-weight: 600;
-      color: var(--dark);
-    }
-
-    .qr-text-top {
-      font-size: 20px;
-      margin-bottom: 15px;
-      padding-bottom: 15px;
-    }
-
-    .qr-text-bottom {
-      font-size: 16px;
-      margin-top: 15px;
-      padding-top: 15px;
-    }
-
-    #qr-holder {
-      width: 300px;
-      height: 300px;
-      background: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      position: relative;
-    }
-
-    #qr-holder canvas {
-      image-rendering: -webkit-optimize-contrast;
-      image-rendering: crisp-edges;
-      width: 100% !important;
-      height: 100% !important;
-      max-width: 100%;
-      max-height: 100%;
-    }
-
-    .preview-footer {
-      text-align: center;
-      color: var(--gray);
-      font-size: 14px;
-      margin-top: 20px;
-    }
-
-    /* Font Controls */
-    .font-controls {
-      padding: 15px;
-      background: #f8f9fa;
-      border-radius: 8px;
-      margin-top: 10px;
-    }
-
-    .font-row {
-      display: flex;
-      gap: 15px;
-      margin-bottom: 10px;
-    }
-
-    .font-input {
-      flex: 1;
-    }
-
-    /* Expandable Sections */
-    .expandable-section {
-      margin-bottom: 15px;
-    }
-
-    .expandable-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 12px 15px;
-      background: #f8f9fa;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: var(--transition);
-    }
-
-    .expandable-header:hover {
-      background: #e9ecef;
-    }
-
-    .expandable-header h3 {
-      margin: 0;
-      font-size: 16px;
-      font-weight: 600;
-      color: var(--dark);
-    }
-
-    .expandable-content {
-      padding: 15px;
-      background: white;
-      border-radius: 0 0 8px 8px;
-      display: none;
-    }
-
-    .expandable-section.expanded .expandable-content {
-      display: block;
-    }
-
-    .expandable-section.expanded .expandable-header {
-      border-radius: 8px 8px 0 0;
-    }
-
-    /* Transparent Background Option */
-    .transparent-option {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-top: 10px;
-    }
-
-    .transparent-option input[type="checkbox"] {
-      width: 18px;
-      height: 18px;
-    }
-
-    /* Download Options */
-    .download-options {
-      display: flex;
-      gap: 10px;
-      margin-top: 15px;
-    }
-
-    .download-options .btn {
-      flex: 1;
-    }
-
-    /* Logo Quality Hint */
-    .logo-quality-hint {
-      font-size: 12px;
-      color: #666;
-      margin-top: 5px;
-      font-style: italic;
-    }
-
-    /* Responsive */
-    @media (max-width: 768px) {
-      .main-content {
-        gap: 20px;
-      }
-      
-      .card {
-        padding: 20px;
-      }
-      
-      .actions {
-        flex-direction: column;
-      }
-      
-      .color-row, .font-row {
-        flex-direction: column;
-        gap: 10px;
-      }
-      
-      header {
-        flex-direction: column;
-        gap: 15px;
-        text-align: center;
-      }
-      
-      .qr-text-top {
-        font-size: 18px;
-      }
-      
-      .qr-text-bottom {
-        font-size: 14px;
-      }
-      
-      #qr-holder {
-        width: 250px;
-        height: 250px;
-      }
-      
-      .download-options {
-        flex-direction: column;
-      }
-    }
-
-    /* HexaBit Footer Styles */
-    .hexabit-footer {
-      background: #000;
-      border-top: 1px solid #374151;
-      width: 100%;
-      margin-top: auto;
-    }
-
-    .footer-container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 48px 20px;
-    }
-
-    .footer-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 32px;
-    }
-
-    @media (min-width: 768px) {
-      .footer-grid {
-        grid-template-columns: 2fr 1fr 1fr;
-      }
-    }
-
-    .footer-logo {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 24px;
-    }
-
-    .footer-logo img {
-      width: 48px;
-      height: 48px;
-      object-fit: contain;
-      padding: 4px;
-    }
-
-    .footer-logo span {
-      font-size: 20px;
-      font-weight: 700;
-      background: linear-gradient(90deg, #22d3ee, #a855f7);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .footer-description {
-      color: #9ca3af;
-      margin-bottom: 24px;
-      line-height: 1.6;
-    }
-
-    .footer-social {
-      display: flex;
-      gap: 16px;
-    }
-
-    .footer-social a {
-      color: #9ca3af;
-      transition: color 0.3s ease;
-    }
-
-    .footer-social a:hover {
-      color: #22d3ee;
-    }
-
-    .footer-social i {
-      font-size: 20px;
-    }
-
-    .footer-heading {
-      color: white;
-      font-weight: 700;
-      font-size: 18px;
-      margin-bottom: 16px;
-    }
-
-    .footer-links {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .footer-links a {
-      color: #9ca3af;
-      text-decoration: none;
-      transition: color 0.3s ease;
-    }
-
-    .footer-links a:hover {
-      color: #22d3ee;
-    }
-
-    .footer-bottom {
-      border-top: 1px solid #374151;
-      margin-top: 48px;
-      padding-top: 32px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 16px;
-    }
-
-    @media (min-width: 768px) {
-      .footer-bottom {
-        flex-direction: row;
-        justify-content: space-between;
-      }
-    }
-
-    .footer-copyright {
-      color: #9ca3af;
-      font-size: 14px;
-    }
-
-    .footer-legal {
-      display: flex;
-      gap: 24px;
-    }
-
-    .footer-legal a {
-      color: #9ca3af;
-      font-size: 14px;
-      text-decoration: none;
-      transition: color 0.3s ease;
-    }
-
-    .footer-legal a:hover {
-      color: #22d3ee;
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>QR Code Generator</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/qr-code-styling@1.5.0/lib/qr-code-styling.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<style>
+body {
+  font-family: Segoe UI, Tahoma, sans-serif;
+  background: #f4f6f8;
+  padding: 20px;
+}
+#qr-holder {
+  width: 300px;
+  height: 300px;
+  margin: auto;
+}
+</style>
 </head>
+
 <body>
-  <div class="container">
-    <header>
-      <div class="logo">
-        <i class="fas fa-qrcode"></i>
-        <h1>QR Code Generator</h1>
-      </div>
-      <div class="language-selector">
-        <button class="lang-btn active" data-lang="en">English</button>
-        <button class="lang-btn" data-lang="ar">العربية</button>
-        <button class="lang-btn" data-lang="ku">کوردی</button>
-      </div>
-    </header>
 
-    <div class="main-content">
-      <div class="card">
-        <div class="card-title">
-          <i class="fas fa-sliders-h"></i>
-          <span class="lang" data-key="settings">Settings</span>
-        </div>
+<h2 style="text-align:center">QR Code Generator</h2>
 
-        <div class="form-group">
-          <label for="data" class="lang" data-key="dataLabel">Text or URL</label>
-          <textarea id="data" placeholder="Enter text or a link" oninput="updateQR()">https://example.com</textarea>
-        </div>
+<div style="max-width:400px;margin:auto">
 
-        <div class="form-group">
-          <div class="color-row">
-            <div class="color-input">
-              <label for="qrColor" class="lang" data-key="qrColor">QR Color</label>
-              <input type="color" id="qrColor" value="#000000" onchange="updateQR()">
-              <div class="color-preview">
-                <span class="color-value" id="qrColorHex"></span>
-              </div>
-            </div>
-            <div class="color-input">
-              <label for="bgColor" class="lang" data-key="bgColor">Background Color</label>
-              <input type="color" id="bgColor" value="#ffffff" onchange="updateQR()">
-              <div class="color-preview">
-                <span class="color-value" id="bgColorHex"></span>
-              </div>
-            </div>
-          </div>
-          <div class="transparent-option">
-            <input type="checkbox" id="transparentBg" onchange="toggleTransparentBackground()">
-            <label for="transparentBg" class="checkbox-label lang" data-key="transparentBg">Transparent Background</label>
-          </div>
-        </div>
+<label>Text or URL</label>
+<textarea id="data" oninput="updateQR()">https://example.com</textarea>
 
-        <div class="form-group">
-          <label for="shape" class="lang" data-key="shapeLabel">Module Style</label>
-          <select id="shape" onchange="updateQR()">
-            <option value="square" class="lang" data-key="squareOption">Squares</option>
-            <option value="rounded" class="lang" data-key="roundedOption">Rounded</option>
-            <option value="dots" class="lang" data-key="dotsOption">Dots / Circles</option>
-          </select>
-          <div class="muted lang" data-key="shapeDesc" style="margin-top: 8px; font-size: 14px; color: #6c757d;">
-            Choose how each small module inside the QR should be rendered.
-          </div>
-        </div>
+<br><br>
 
-        <!-- Top Text Expandable Section -->
-        <div class="expandable-section" id="topTextSection">
-          <div class="expandable-header" onclick="toggleSection('topTextSection')">
-            <h3 class="lang" data-key="topTextLabel">Text Above QR Code</h3>
-            <i class="fas fa-chevron-down"></i>
-          </div>
-          <div class="expandable-content">
-            <input type="text" id="topText" placeholder="Enter text to display above QR code" oninput="updateText()">
-            
-            <div class="font-controls">
-              <div class="font-row">
-                <div class="font-input">
-                  <label for="topFontSize">Font Size</label>
-                  <div class="range-container">
-                    <input type="range" id="topFontSize" min="12" max="36" value="20" oninput="updateTopFontSize()">
-                    <span id="topFontSizeVal" class="range-value">20px</span>
-                  </div>
-                </div>
-                <div class="font-input">
-                  <label for="topFontWeight">Font Weight</label>
-                  <select id="topFontWeight" onchange="updateTextStyle()">
-                    <option value="normal">Normal</option>
-                    <option value="bold" selected>Bold</option>
-                    <option value="lighter">Light</option>
-                  </select>
-                </div>
-              </div>
-              <div class="font-row">
-                <div class="font-input">
-                  <label for="topFontFamily">Font Family</label>
-                  <select id="topFontFamily" onchange="updateTextStyle()">
-                    <option value="Arial, sans-serif">Arial</option>
-                    <option value="'Segoe UI', Tahoma, Geneva, Verdana, sans-serif" selected>Segoe UI</option>
-                    <option value="'Times New Roman', serif">Times New Roman</option>
-                    <option value="'Courier New', monospace">Courier New</option>
-                    <option value="Georgia, serif">Georgia</option>
-                  </select>
-                </div>
-                <div class="font-input">
-                  <label for="topFontStyle">Font Style</label>
-                  <select id="topFontStyle" onchange="updateTextStyle()">
-                    <option value="normal" selected>Normal</option>
-                    <option value="italic">Italic</option>
-                    <option value="oblique">Oblique</option>
-                  </select>
-                </div>
-              </div>
-              <div class="font-row">
-                <div class="font-input">
-                  <label for="topTextColor">Text Color</label>
-                  <input type="color" id="topTextColor" value="#212529" onchange="updateTextStyle()">
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+<label>QR Color</label>
+<input type="color" id="qrColor" value="#000000" onchange="updateQR()">
 
-        <!-- Bottom Text Expandable Section -->
-        <div class="expandable-section" id="bottomTextSection">
-          <div class="expandable-header" onclick="toggleSection('bottomTextSection')">
-            <h3 class="lang" data-key="bottomTextLabel">Text Below QR Code</h3>
-            <i class="fas fa-chevron-down"></i>
-          </div>
-          <div class="expandable-content">
-            <input type="text" id="bottomText" placeholder="Enter text to display below QR code" oninput="updateText()">
-            
-            <div class="font-controls">
-              <div class="font-row">
-                <div class="font-input">
-                  <label for="bottomFontSize">Font Size</label>
-                  <div class="range-container">
-                    <input type="range" id="bottomFontSize" min="10" max="30" value="16" oninput="updateBottomFontSize()">
-                    <span id="bottomFontSizeVal" class="range-value">16px</span>
-                  </div>
-                </div>
-                <div class="font-input">
-                  <label for="bottomFontWeight">Font Weight</label>
-                  <select id="bottomFontWeight" onchange="updateTextStyle()">
-                    <option value="normal">Normal</option>
-                    <option value="bold" selected>Bold</option>
-                    <option value="lighter">Light</option>
-                  </select>
-                </div>
-              </div>
-              <div class="font-row">
-                <div class="font-input">
-                  <label for="bottomFontFamily">Font Family</label>
-                  <select id="bottomFontFamily" onchange="updateTextStyle()">
-                    <option value="Arial, sans-serif">Arial</option>
-                    <option value="'Segoe UI', Tahoma, Geneva, Verdana, sans-serif" selected>Segoe UI</option>
-                    <option value="'Times New Roman', serif">Times New Roman</option>
-                    <option value="'Courier New', monospace">Courier New</option>
-                    <option value="Georgia, serif">Georgia</option>
-                  </select>
-                </div>
-                <div class="font-input">
-                  <label for="bottomFontStyle">Font Style</label>
-                  <select id="bottomFontStyle" onchange="updateTextStyle()">
-                    <option value="normal" selected>Normal</option>
-                    <option value="italic">Italic</option>
-                    <option value="oblique">Oblique</option>
-                  </select>
-                </div>
-              </div>
-              <div class="font-row">
-                <div class="font-input">
-                  <label for="bottomTextColor">Text Color</label>
-                  <input type="color" id="bottomTextColor" value="#212529" onchange="updateTextStyle()">
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+<br><br>
 
-        <div class="form-group">
-          <div class="checkbox-group">
-            <input type="checkbox" id="useLogo" onchange="onLogoToggle()">
-            <label for="useLogo" class="checkbox-label lang" data-key="logoLabel">Add Center Logo</label>
-          </div>
-          
-          <div id="logoControls" style="display: none;">
-            <div class="logo-controls">
-              <div class="form-group">
-                <label class="lang" data-key="uploadLabel">Upload Image</label>
-                <div class="file-input-wrapper">
-                  <div class="file-input-btn">
-                    <i class="fas fa-upload"></i>
-                    <span class="lang" data-key="uploadBtn">Choose File</span>
-                  </div>
-                  <input type="file" id="logoFile" accept="image/*" onchange="onLogoChange(event)">
-                </div>
-              </div>
-              
-              <div class="form-group">
-                <label for="logoUrl" class="lang" data-key="urlLabel">Or Paste Image URL</label>
-                <input type="text" id="logoUrl" placeholder="https://example.com/logo.png" oninput="onLogoUrlChange()">
-              </div>
-              
-              <div class="form-group">
-                <label for="logoSize" class="lang" data-key="sizeLabel">Logo Size</label>
-                <div class="range-container">
-                  <input type="range" id="logoSize" min="15" max="40" value="25" oninput="updateLogoSize()">
-                  <span id="logoSizeVal" class="range-value">25%</span>
-                </div>
-                <div class="logo-quality-hint lang" data-key="qualityHint">
-                  For best results, use high-resolution logos (minimum 200x200 pixels)
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+<label>Background Color</label>
+<input type="color" id="bgColor" value="#ffffff" onchange="updateQR()">
 
-        <div class="actions">
-          <button class="btn btn-primary" onclick="updateQR(true)">
-            <i class="fas fa-sync-alt"></i>
-            <span class="lang" data-key="generateBtn">Generate QR Code</span>
-          </button>
-          <button class="btn btn-outline" onclick="resetDefaults()">
-            <i class="fas fa-redo"></i>
-            <span class="lang" data-key="resetBtn">Reset</span>
-          </button>
-        </div>
-        
-        <div class="download-options">
-          <button class="btn btn-success" onclick="downloadWithText()">
-            <i class="fas fa-download"></i>
-            <span class="lang" data-key="downloadWithTextBtn">Download with Text</span>
-          </button>
-          <button class="btn btn-success" onclick="downloadQROnly()">
-            <i class="fas fa-download"></i>
-            <span class="lang" data-key="downloadQRBtn">QR Only</span>
-          </button>
-        </div>
-      </div>
+<br><br>
 
-      <div class="card preview-container">
-        <div class="card-title preview-title">
-          <i class="fas fa-eye"></i>
-          <span class="lang" data-key="previewTitle">QR Code Preview</span>
-        </div>
-        <div class="qr-container" id="qr-container">
-          <div id="topTextDisplay" class="qr-text qr-text-top"></div>
-          <div id="qr-holder">
-            <!-- QR code will be rendered here -->
-          </div>
-          <div id="bottomTextDisplay" class="qr-text qr-text-bottom"></div>
-        </div>
-        <div class="preview-footer lang" data-key="previewDesc">
-          Preview includes text above and below QR code. Download will include both.
-        </div>
-      </div>
-    </div>
-  </div>
+<label>
+  <input type="checkbox" id="transparentBg" onchange="updateQR()"> Transparent Background
+</label>
 
-  <!-- HexaBit Footer -->
-  <footer class="hexabit-footer">
-    <div class="footer-container">
-      <div class="footer-grid">
-        <div>
-          <div class="footer-logo">
-            <img src="https://via.placeholder.com/48x48/000000/FFFFFF?text=HB" alt="HexaBit Logo">
-            <span>HexaBit</span>
-          </div>
-          <p class="footer-description">
-            Professional programming services and IT technical support to help your business thrive in the digital world.
-          </p>
-          <div class="footer-social">
-            <a href="https://www.instagram.com/hexabit.tech?igsh=MWhvanR0dG8yaG41cw==" target="_blank" rel="noopener noreferrer">
-              <i class="fab fa-instagram"></i>
-            </a>
-            <a href="#">
-              <i class="fab fa-facebook"></i>
-            </a>
-            <a href="#">
-              <i class="fab fa-github"></i>
-            </a>
-            <a href="#">
-              <i class="fab fa-linkedin"></i>
-            </a>
-            <a href="#" target="_blank" rel="noopener noreferrer">
-              <i class="fab fa-youtube"></i>
-            </a>
-          </div>
-        </div>
-        
-        <div>
-          <h3 class="footer-heading">Services</h3>
-          <ul class="footer-links">
-            <li><a href="#">Custom Development</a></li>
-            <li><a href="#">Technical Support</a></li>
-            <li><a href="#">Database Solutions</a></li>
-            <li><a href="#">Network Solutions</a></li>
-          </ul>
-        </div>
-        
-        <div>
-          <h3 class="footer-heading">Company</h3>
-          <ul class="footer-links">
-            <li><a href="#">About Us</a></li>
-            <li><a href="#">Technologies</a></li>
-            <li><a href="#">Contact</a></li>
-            <li><a href="#">Privacy Policy</a></li>
-          </ul>
-        </div>
-      </div>
-      
-      <div class="footer-bottom">
-        <p class="footer-copyright">©2025 HexaBit. All rights reserved.</p>
-        <div class="footer-legal">
-          <a href="#">Terms of Service</a>
-          <a href="#">Privacy Policy</a>
-        </div>
-      </div>
-    </div>
-  </footer>
+<br><br>
 
-  <!-- QR Code Styling library -->
-  <script src="https://cdn.jsdelivr.net/npm/qr-code-styling@1.5.0/lib/qr-code-styling.js"></script>
+<label>
+  <input type="checkbox" id="useLogo" onchange="toggleLogo()"> Add Center Logo
+</label>
 
-  <script>
-    // Language data
-    const translations = {
-      en: {
-        settings: "Settings",
-        dataLabel: "Text or URL",
-        qrColor: "QR Color",
-        bgColor: "Background Color",
-        transparentBg: "Transparent Background",
-        shapeLabel: "Module Style",
-        squareOption: "Squares",
-        roundedOption: "Rounded",
-        dotsOption: "Dots / Circles",
-        shapeDesc: "Choose how each small module inside the QR should be rendered.",
-        topTextLabel: "Text Above QR Code",
-        bottomTextLabel: "Text Below QR Code",
-        logoLabel: "Add Center Logo",
-        uploadLabel: "Upload Image",
-        uploadBtn: "Choose File",
-        urlLabel: "Or Paste Image URL",
-        sizeLabel: "Logo Size",
-        qualityHint: "For best results, use high-resolution logos (minimum 200x200 pixels)",
-        generateBtn: "Generate QR",
-        downloadBtn: "Download PNG",
-        downloadWithTextBtn: "Download with Text",
-        downloadQRBtn: "QR Only",
-        resetBtn: "Reset",
-        previewTitle: "QR Code Preview",
-        previewDesc: "Preview includes text above and below QR code. Download will include both.",
-        footerText: "QR Code Generator © 2023 | Create custom QR codes with colors and logos"
-      },
-      ar: {
-        settings: "الإعدادات",
-        dataLabel: "النص أو الرابط",
-        qrColor: "لون رمز الاستجابة السريعة",
-        bgColor: "لون الخلفية",
-        transparentBg: "خلفية شفافة",
-        shapeLabel: "نمط الوحدة",
-        squareOption: "مربعات",
-        roundedOption: "مستدير",
-        dotsOption: "نقاط / دوائر",
-        shapeDesc: "اختر كيفية عرض كل وحدة صغيرة داخل رمز الاستجابة السريعة.",
-        topTextLabel: "النص فوق رمز الاستجابة السريعة",
-        bottomTextLabel: "النص تحت رمز الاستجابة السريعة",
-        logoLabel: "إضافة شعار في المنتصف",
-        uploadLabel: "تحميل الصورة",
-        uploadBtn: "اختر ملف",
-        urlLabel: "أو الصق رابط الصورة",
-        sizeLabel: "حجم الشعار",
-        qualityHint: "للحصول على أفضل النتائج، استخدم شعارات عالية الدقة (200x200 بيكسل كحد أدنى)",
-        generateBtn: " QR إنشاء",
-        downloadBtn: "تحميل PNG",
-        downloadWithTextBtn: "تحميل مع النص",
-        downloadQRBtn: "QR فقط",
-        resetBtn: "إعادة تعيين",
-        previewTitle: "معاينة رمز الاستجابة السريعة",
-        previewDesc: "المعاينة تتضمن النص فوق وتحت رمز الاستجابة السريعة. التحميل سيتضمن كليهما.",
-        footerText: "منشئ رمز الاستجابة السريعة © 2023 | إنشاء رموز QR مخصصة مع الألوان والشعارات"
-      },
-      ku: {
-        settings: "ڕێکخستنەکان",
-        dataLabel: "دەق یان بەستەر",
-        qrColor: "ڕەنگی QR",
-        bgColor: "ڕەنگی پاشبنەما",
-        transparentBg: "پاشبنەمای ڕۆشن",
-        shapeLabel: "شێوازی یەکە",
-        squareOption: "چوارگۆشە",
-        roundedOption: "خڕ",
-        dotsOption: "خاڵ / بازنە",
-        shapeDesc: "ديارى بكە كە هەر يەكە بچووكەكە لە ناو QR چۆن پێشان بدرێت.",
-        topTextLabel: "دەق لە سەرەوەی QR",
-        bottomTextLabel: "دەق لە خوارەوەی QR",
-        logoLabel: "لۆگۆ لە ناوەڕاست زیاد بکە",
-        uploadLabel: "وێنە بار بکە",
-        uploadBtn: "فایل هەڵبژێرە",
-        urlLabel: "یان بەستەری وێنە بلکێنە",
-        sizeLabel: "قەبارەی لۆگۆ",
-        qualityHint: "بۆ باشترین ئەنجامەکان، لۆگۆی بەرزی وردەپێدان بەکاربهێنە (کەمترین 200x200 پیکسڵ)",
-        generateBtn: "QR دروست بکە",
-        downloadBtn: "داگرتنی PNG",
-        downloadWithTextBtn: "داگرتن لەگەڵ دەق",
-        downloadQRBtn: "تەنها QR",
-        resetBtn: "ڕێکخستنەوە",
-        previewTitle: "پێشبینینی کۆدی QR",
-        previewDesc: "پێشبینین دەقی سەرەوە و خوارەوەی QR لەخۆدەگرێت. داگرتن هەردووکیان لەخۆدەگرێت.",
-        footerText: "دروستکەری کۆدی QR © 2023 | دروستکردنی کۆدی QR تایبەت بە ڕەنگ و لۆگۆ"
-      }
+<div id="logoControls" style="display:none;margin-top:10px">
+
+<input type="file" id="logoFile" accept="image/*">
+
+<br><br>
+
+<input type="text" id="logoUrl" placeholder="https://example.com/logo.png">
+
+<br><br>
+
+<label>Logo Size</label>
+<input type="range" id="logoSize" min="15" max="40" value="25" oninput="updateQR()">
+<span id="logoSizeVal">25%</span>
+
+</div>
+
+</div>
+
+<br><br>
+
+<div id="qr-holder"></div>
+
+<br>
+
+<div style="text-align:center">
+<button onclick="downloadQR()">Download PNG</button>
+</div>
+
+<script>
+let qrCode;
+let currentLogo = null;
+
+const dataEl = document.getElementById("data");
+const qrColorEl = document.getElementById("qrColor");
+const bgColorEl = document.getElementById("bgColor");
+const transparentBgEl = document.getElementById("transparentBg");
+const useLogoEl = document.getElementById("useLogo");
+const logoFileEl = document.getElementById("logoFile");
+const logoUrlEl = document.getElementById("logoUrl");
+const logoSizeEl = document.getElementById("logoSize");
+const logoSizeVal = document.getElementById("logoSizeVal");
+const qrHolder = document.getElementById("qr-holder");
+
+logoFileEl.addEventListener("change", e => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    currentLogo = ev.target.result; // ✅ PNG stays PNG
+    logoUrlEl.value = "";
+    updateQR(true);
+  };
+  reader.readAsDataURL(file);
+});
+
+logoUrlEl.addEventListener("input", () => {
+  const url = logoUrlEl.value.trim();
+  currentLogo = url || null;
+  updateQR(true);
+});
+
+function toggleLogo() {
+  document.getElementById("logoControls").style.display =
+    useLogoEl.checked ? "block" : "none";
+  updateQR(true);
+}
+
+function updateQR(force = false) {
+  logoSizeVal.textContent = logoSizeEl.value + "%";
+
+  const options = {
+    data: dataEl.value || "https://example.com",
+    width: 300,
+    height: 300,
+    dotsOptions: {
+      color: qrColorEl.value,
+      type: "square"
+    },
+    backgroundOptions: {
+      color: transparentBgEl.checked ? "transparent" : bgColorEl.value
+    }
+  };
+
+  if (useLogoEl.checked && currentLogo) {
+    options.image = currentLogo;
+    options.imageOptions = {
+      crossOrigin: "anonymous",
+      imageSize: logoSizeEl.value / 100, // ✅ correct size control
+      margin: 8
     };
+  }
 
-    // DOM elements
-    const dataEl = document.getElementById('data');
-    const qrColorEl = document.getElementById('qrColor');
-    const bgColorEl = document.getElementById('bgColor');
-    const transparentBgEl = document.getElementById('transparentBg');
-    const shapeEl = document.getElementById('shape');
-    const useLogoEl = document.getElementById('useLogo');
-    const logoControls = document.getElementById('logoControls');
-    const logoFileEl = document.getElementById('logoFile');
-    const logoUrlEl = document.getElementById('logoUrl');
-    const logoSizeEl = document.getElementById('logoSize');
-    const logoSizeVal = document.getElementById('logoSizeVal');
-    const qrHolder = document.getElementById('qr-holder');
-    const qrColorHex = document.getElementById('qrColorHex');
-    const bgColorHex = document.getElementById('bgColorHex');
-    const topTextEl = document.getElementById('topText');
-    const bottomTextEl = document.getElementById('bottomText');
-    const topTextDisplay = document.getElementById('topTextDisplay');
-    const bottomTextDisplay = document.getElementById('bottomTextDisplay');
-    const qrContainer = document.getElementById('qr-container');
-    const topFontSizeEl = document.getElementById('topFontSize');
-    const topFontSizeVal = document.getElementById('topFontSizeVal');
-    const topFontWeightEl = document.getElementById('topFontWeight');
-    const topFontFamilyEl = document.getElementById('topFontFamily');
-    const topFontStyleEl = document.getElementById('topFontStyle');
-    const topTextColorEl = document.getElementById('topTextColor');
-    const bottomFontSizeEl = document.getElementById('bottomFontSize');
-    const bottomFontSizeVal = document.getElementById('bottomFontSizeVal');
-    const bottomFontWeightEl = document.getElementById('bottomFontWeight');
-    const bottomFontFamilyEl = document.getElementById('bottomFontFamily');
-    const bottomFontStyleEl = document.getElementById('bottomFontStyle');
-    const bottomTextColorEl = document.getElementById('bottomTextColor');
-    const langButtons = document.querySelectorAll('.lang-btn');
-    const langElements = document.querySelectorAll('.lang');
+  qrHolder.innerHTML = "";
+  qrCode = new QRCodeStyling(options);
+  qrCode.append(qrHolder);
+}
 
-    // Set initial language
-    let currentLang = 'en';
+function downloadQR() {
+  qrCode.download({
+    name: "qr-code",
+    extension: "png"
+  });
+}
 
-    // Logo handling variables
-    let currentLogoDataUrl = null;
-    let originalLogoWidth = 0;
-    let originalLogoHeight = 0;
+updateQR(true);
+</script>
 
-    // QR Code instance
-    let qrCode;
-
-    // Language switching
-    langButtons.forEach(button => {
-      button.addEventListener('click', () => {
-        // Update active button
-        langButtons.forEach(btn => btn.classList.remove('active'));
-        button.classList.add('active');
-        
-        // Update language
-        currentLang = button.getAttribute('data-lang');
-        updateLanguage();
-      });
-    });
-
-    // Update all text elements with current language
-    function updateLanguage() {
-      langElements.forEach(element => {
-        const key = element.getAttribute('data-key');
-        if (translations[currentLang][key]) {
-          element.textContent = translations[currentLang][key];
-        }
-      });
-      
-      // Update select options
-      const shapeOptions = shapeEl.querySelectorAll('option');
-      shapeOptions.forEach((option, index) => {
-        const key = option.getAttribute('data-key');
-        if (translations[currentLang][key]) {
-          option.textContent = translations[currentLang][key];
-        }
-      });
-    }
-
-    // Toggle expandable sections
-    function toggleSection(sectionId) {
-      const section = document.getElementById(sectionId);
-      section.classList.toggle('expanded');
-      const icon = section.querySelector('.fa-chevron-down');
-      icon.classList.toggle('fa-chevron-up');
-    }
-
-    // Update color previews and hex values
-    qrColorEl.addEventListener('input', () => {
-      qrColorHex.textContent = qrColorEl.value;
-      updateQR();
-    });
-
-    bgColorEl.addEventListener('input', () => {
-      bgColorHex.textContent = bgColorEl.value;
-      updateQR();
-    });
-
-    // Toggle transparent background
-    function toggleTransparentBackground() {
-      if (transparentBgEl.checked) {
-        bgColorEl.disabled = true;
-        bgColorEl.value = '#ffffff';
-        bgColorHex.textContent = 'transparent';
-        bgColorHex.style.color = '#6c757d';
-        bgColorHex.style.fontStyle = 'italic';
-      } else {
-        bgColorEl.disabled = false;
-        bgColorHex.textContent = bgColorEl.value;
-        bgColorHex.style.color = '';
-        bgColorHex.style.fontStyle = '';
-      }
-      updateQR();
-    }
-
-    // Update logo size display
-    function updateLogoSize() {
-      logoSizeVal.textContent = logoSizeEl.value + '%';
-      updateQR(true);
-    }
-
-    // Update text above and below QR code
-    function updateText() {
-      topTextDisplay.textContent = topTextEl.value;
-      bottomTextDisplay.textContent = bottomTextEl.value;
-    }
-
-    // Update top text font size
-    function updateTopFontSize() {
-      topFontSizeVal.textContent = topFontSizeEl.value + 'px';
-      updateTextStyle();
-    }
-
-    // Update bottom text font size
-    function updateBottomFontSize() {
-      bottomFontSizeVal.textContent = bottomFontSizeEl.value + 'px';
-      updateTextStyle();
-    }
-
-    // Update text styling
-    function updateTextStyle() {
-      // Update top text styling
-      topTextDisplay.style.fontSize = topFontSizeEl.value + 'px';
-      topTextDisplay.style.fontWeight = topFontWeightEl.value;
-      topTextDisplay.style.fontFamily = topFontFamilyEl.value;
-      topTextDisplay.style.fontStyle = topFontStyleEl.value;
-      topTextDisplay.style.color = topTextColorEl.value;
-      
-      // Update bottom text styling
-      bottomTextDisplay.style.fontSize = bottomFontSizeEl.value + 'px';
-      bottomTextDisplay.style.fontWeight = bottomFontWeightEl.value;
-      bottomTextDisplay.style.fontFamily = bottomFontFamilyEl.value;
-      bottomTextDisplay.style.fontStyle = bottomFontStyleEl.value;
-      bottomTextDisplay.style.color = bottomTextColorEl.value;
-    }
-
-    // Improved logo handling
-    function onLogoChange(e) {
-      const file = e.target.files && e.target.files[0];
-      if (!file) return;
-      
-      const reader = new FileReader();
-      reader.onload = function(evt) {
-        // Create an image to get the original dimensions
-        const img = new Image();
-        img.onload = function() {
-          originalLogoWidth = img.width;
-          originalLogoHeight = img.height;
-          console.log('Original logo dimensions:', img.width, 'x', img.height);
-          
-          // Create a canvas to optimize the logo
-          const canvas = document.createElement('canvas');
-          const ctx = canvas.getContext('2d');
-          
-          // Set canvas size to match QR code resolution (300x300)
-          canvas.width = 300;
-          canvas.height = 300;
-          
-          // Calculate logo size based on percentage
-          const logoPercent = Number(logoSizeEl.value);
-          const logoSize = (300 * logoPercent) / 100;
-          
-          // Calculate position to center the logo
-          const x = (300 - logoSize) / 2;
-          const y = (300 - logoSize) / 2;
-          
-          // Draw logo with high quality
-          ctx.imageSmoothingEnabled = true;
-          ctx.imageSmoothingQuality = 'high';
-          ctx.drawImage(img, x, y, logoSize, logoSize);
-          
-          // Convert to data URL
-          currentLogoDataUrl = canvas.toDataURL('image/png', 1.0);
-          logoUrlEl.value = '';
-          updateQR(true);
-        };
-        img.src = evt.target.result;
-      };
-      reader.readAsDataURL(file);
-    }
-
-    function onLogoUrlChange() {
-      const url = logoUrlEl.value.trim();
-      if (!url) { 
-        currentLogoDataUrl = null; 
-        updateQR(true); 
-        return; 
-      }
-      
-      // Load image from URL
-      const img = new Image();
-      img.crossOrigin = 'anonymous'; // For CORS support
-      img.onload = function() {
-        originalLogoWidth = img.width;
-        originalLogoHeight = img.height;
-        console.log('Logo loaded from URL:', img.width, 'x', img.height);
-        
-        // Create a canvas to optimize the logo
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        
-        // Set canvas size
-        canvas.width = 300;
-        canvas.height = 300;
-        
-        // Calculate logo size
-        const logoPercent = Number(logoSizeEl.value);
-        const logoSize = (300 * logoPercent) / 100;
-        
-        // Calculate position
-        const x = (300 - logoSize) / 2;
-        const y = (300 - logoSize) / 2;
-        
-        // Draw with high quality
-        ctx.imageSmoothingEnabled = true;
-        ctx.imageSmoothingQuality = 'high';
-        ctx.drawImage(img, x, y, logoSize, logoSize);
-        
-        currentLogoDataUrl = canvas.toDataURL('image/png', 1.0);
-        updateQR(true);
-      };
-      
-      img.onerror = function() {
-        alert('Failed to load image from URL. Please check the URL and CORS settings.');
-        currentLogoDataUrl = null;
-        logoUrlEl.value = '';
-      };
-      
-      img.src = url;
-    }
-
-    function onLogoToggle() {
-      logoControls.style.display = useLogoEl.checked ? 'block' : 'none';
-      if (useLogoEl.checked && !currentLogoDataUrl) {
-        // If logo is toggled on but no logo is selected, show a message
-        console.log('Please upload or enter a logo URL');
-      }
-      updateQR(true);
-    }
-
-    // Enhanced updateQR function for better logo handling
-    function updateQR(force = false) {
-      const data = dataEl.value || 'https://example.com';
-      const dotsType = shapeEl.value;
-      const dotsTypeMap = { square: 'square', rounded: 'rounded', dots: 'dots' };
-      
-      const imageEnabled = useLogoEl.checked && currentLogoDataUrl;
-      const logoPercent = Number(logoSizeEl.value);
-      
-      // Handle colors
-      let qrColor = qrColorEl.value;
-      let bgColor = transparentBgEl.checked ? 'transparent' : bgColorEl.value;
-      
-      // Get QR holder dimensions
-      const holderWidth = qrHolder.clientWidth;
-      const holderHeight = qrHolder.clientHeight;
-      
-      // Calculate optimal size for better quality
-      const qrSize = Math.min(holderWidth, holderHeight, 600);
-      
-      const opts = {
-        data: data,
-        width: qrSize,
-        height: qrSize,
-        dotsOptions: { 
-          color: qrColor, 
-          type: dotsTypeMap[dotsType] || 'square' 
-        },
-        backgroundOptions: { 
-          color: bgColor 
-        },
-      };
-      
-      if (imageEnabled && currentLogoDataUrl) {
-        opts.image = currentLogoDataUrl;
-        
-        // Calculate margin based on logo size (smaller logo = larger margin)
-        const baseMargin = 10;
-        const marginFactor = (100 - logoPercent) / 100;
-        const margin = Math.max(5, baseMargin * marginFactor);
-        
-        opts.imageOptions = { 
-          crossOrigin: 'anonymous', 
-          margin: margin,
-          imageSize: logoPercent / 100
-        };
-      }
-      
-      // Update the QR code instance with new size
-      if (qrCode) {
-        qrHolder.innerHTML = ''; // Clear previous
-      }
-      
-      qrCode = new QRCodeStyling(opts);
-      qrCode.append(qrHolder);
-    }
-
-    // Download function that includes text
-    function downloadWithText() {
-      // Use html2canvas to capture the entire QR container with text
-      const backgroundColor = transparentBgEl.checked ? null : '#ffffff';
-      
-      html2canvas(qrContainer, {
-        scale: 4, // Higher quality for better resolution
-        backgroundColor: backgroundColor,
-        useCORS: true,
-        logging: false
-      }).then(canvas => {
-        // Create a download link
-        const link = document.createElement('a');
-        link.download = 'qr-code-with-text.png';
-        link.href = canvas.toDataURL('image/png', 1.0); // Maximum quality
-        link.click();
-      });
-    }
-
-    // Download QR code only (with transparent background option)
-    function downloadQROnly() {
-      // Create a temporary canvas for the QR code only
-      const canvas = document.querySelector('#qr-holder canvas');
-      if (!canvas) {
-        alert('Please generate a QR code first');
-        return;
-      }
-      
-      // Create a new canvas to handle transparency
-      const tempCanvas = document.createElement('canvas');
-      const tempCtx = tempCanvas.getContext('2d');
-      tempCanvas.width = canvas.width;
-      tempCanvas.height = canvas.height;
-      
-      // If transparent background is selected, clear the canvas
-      if (transparentBgEl.checked) {
-        tempCtx.clearRect(0, 0, tempCanvas.width, tempCanvas.height);
-      } else {
-        // Otherwise, fill with the selected background color
-        tempCtx.fillStyle = bgColorEl.value;
-        tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
-      }
-      
-      // Draw the QR code onto the temporary canvas
-      tempCtx.drawImage(canvas, 0, 0);
-      
-      // Create a download link
-      const link = document.createElement('a');
-      link.download = 'qr-code.png';
-      link.href = tempCanvas.toDataURL('image/png', 1.0);
-      link.click();
-    }
-
-    function resetDefaults() {
-      dataEl.value = 'https://example.com';
-      qrColorEl.value = '#000000'; 
-      qrColorHex.textContent = '#000000';
-      bgColorEl.value = '#ffffff'; 
-      bgColorHex.textContent = '#ffffff';
-      transparentBgEl.checked = false;
-      bgColorEl.disabled = false;
-      shapeEl.value = 'square';
-      topTextEl.value = '';
-      bottomTextEl.value = '';
-      topTextDisplay.textContent = '';
-      bottomTextDisplay.textContent = '';
-      topFontSizeEl.value = 20;
-      topFontSizeVal.textContent = '20px';
-      topFontWeightEl.value = 'bold';
-      topFontFamilyEl.value = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
-      topFontStyleEl.value = 'normal';
-      topTextColorEl.value = '#212529';
-      bottomFontSizeEl.value = 16;
-      bottomFontSizeVal.textContent = '16px';
-      bottomFontWeightEl.value = 'bold';
-      bottomFontFamilyEl.value = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
-      bottomFontStyleEl.value = 'normal';
-      bottomTextColorEl.value = '#212529';
-      updateTextStyle();
-      useLogoEl.checked = false; 
-      logoControls.style.display = 'none';
-      logoFileEl.value = null; 
-      logoUrlEl.value = ''; 
-      currentLogoDataUrl = null;
-      originalLogoWidth = 0;
-      originalLogoHeight = 0;
-      logoSizeEl.value = 25; 
-      logoSizeVal.textContent = '25%';
-      updateQR(true);
-    }
-
-    // Initialize
-    function init() {
-      // Set initial color values
-      qrColorHex.textContent = qrColorEl.value;
-      bgColorHex.textContent = bgColorEl.value;
-      
-      // Initialize QR code
-      updateQR(true);
-      
-      // Initialize language
-      updateLanguage();
-      
-      // Initialize text styling
-      updateTextStyle();
-      
-      // Set up event listeners
-      logoFileEl.addEventListener('change', onLogoChange);
-      shapeEl.addEventListener('change', () => updateQR());
-      dataEl.addEventListener('input', () => updateQR());
-      logoSizeEl.addEventListener('input', () => updateLogoSize());
-      topTextEl.addEventListener('input', () => updateText());
-      bottomTextEl.addEventListener('input', () => updateText());
-    }
-
-    // Start the application
-    init();
-  </script>
 </body>
 </html>
