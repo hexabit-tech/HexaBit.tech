@@ -381,6 +381,15 @@
       position: relative;
     }
 
+    #qr-holder canvas {
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: crisp-edges;
+      width: 100% !important;
+      height: 100% !important;
+      max-width: 100%;
+      max-height: 100%;
+    }
+
     .preview-footer {
       text-align: center;
       color: var(--gray);
@@ -470,6 +479,14 @@
 
     .download-options .btn {
       flex: 1;
+    }
+
+    /* Logo Quality Hint */
+    .logo-quality-hint {
+      font-size: 12px;
+      color: #666;
+      margin-top: 5px;
+      font-style: italic;
     }
 
     /* Responsive */
@@ -673,7 +690,7 @@
 
         <div class="form-group">
           <label for="data" class="lang" data-key="dataLabel">Text or URL</label>
-          <textarea id="data" placeholder="Enter text or a link" oninput="updateQR()"></textarea>
+          <textarea id="data" placeholder="Enter text or a link" oninput="updateQR()">https://example.com</textarea>
         </div>
 
         <div class="form-group">
@@ -850,10 +867,13 @@
               </div>
               
               <div class="form-group">
-                <label class="lang" data-key="sizeLabel">Logo Size</label>
+                <label for="logoSize" class="lang" data-key="sizeLabel">Logo Size</label>
                 <div class="range-container">
-                  <input type="range" id="logoSize" min="8" max="40" value="20" oninput="updateLogoSize()">
-                  <span id="logoSizeVal" class="range-value">20%</span>
+                  <input type="range" id="logoSize" min="15" max="40" value="25" oninput="updateLogoSize()">
+                  <span id="logoSizeVal" class="range-value">25%</span>
+                </div>
+                <div class="logo-quality-hint lang" data-key="qualityHint">
+                  For best results, use high-resolution logos (minimum 200x200 pixels)
                 </div>
               </div>
             </div>
@@ -988,6 +1008,7 @@
         uploadBtn: "Choose File",
         urlLabel: "Or Paste Image URL",
         sizeLabel: "Logo Size",
+        qualityHint: "For best results, use high-resolution logos (minimum 200x200 pixels)",
         generateBtn: "Generate QR",
         downloadBtn: "Download PNG",
         downloadWithTextBtn: "Download with Text",
@@ -1015,6 +1036,7 @@
         uploadBtn: "اختر ملف",
         urlLabel: "أو الصق رابط الصورة",
         sizeLabel: "حجم الشعار",
+        qualityHint: "للحصول على أفضل النتائج، استخدم شعارات عالية الدقة (200x200 بيكسل كحد أدنى)",
         generateBtn: " QR إنشاء",
         downloadBtn: "تحميل PNG",
         downloadWithTextBtn: "تحميل مع النص",
@@ -1042,6 +1064,7 @@
         uploadBtn: "فایل هەڵبژێرە",
         urlLabel: "یان بەستەری وێنە بلکێنە",
         sizeLabel: "قەبارەی لۆگۆ",
+        qualityHint: "بۆ باشترین ئەنجامەکان، لۆگۆی بەرزی وردەپێدان بەکاربهێنە (کەمترین 200x200 پیکسڵ)",
         generateBtn: "QR دروست بکە",
         downloadBtn: "داگرتنی PNG",
         downloadWithTextBtn: "داگرتن لەگەڵ دەق",
@@ -1090,6 +1113,14 @@
 
     // Set initial language
     let currentLang = 'en';
+
+    // Logo handling variables
+    let currentLogoDataUrl = null;
+    let originalLogoWidth = 0;
+    let originalLogoHeight = 0;
+
+    // QR Code instance
+    let qrCode;
 
     // Language switching
     langButtons.forEach(button => {
@@ -1200,78 +1231,165 @@
       bottomTextDisplay.style.color = bottomTextColorEl.value;
     }
 
-    // Initialize QRCodeStyling
-    let qrCode = new QRCodeStyling({
-      width: 300,
-      height: 300,
-      data: dataEl.value,
-      image: undefined,
-      dotsOptions: { color: qrColorEl.value, type: 'square' },
-      backgroundOptions: { color: bgColorEl.value },
-      imageOptions: { crossOrigin: 'anonymous', margin: 5 },
-      cornersSquareOptions: { type: 'square' },
-    });
-
-    // Append to holder
-    qrCode.append(qrHolder);
-
-    // Update QR code
-    function updateQR(force=false){
-      const data = dataEl.value || '';
-      const dotsType = shapeEl.value;
-      const dotsTypeMap = { square: 'square', rounded: 'rounded', dots: 'dots' };
-
-      const imageEnabled = useLogoEl.checked && currentLogoDataUrl;
-      const logoPercent = Number(logoSizeEl.value);
-
-      // Handle colors
-      let qrColor = qrColorEl.value;
-      let bgColor = transparentBgEl.checked ? 'transparent' : bgColorEl.value;
-
-      const opts = {
-        data: data,
-        dotsOptions: { color: qrColor, type: dotsTypeMap[dotsType] || 'square' },
-        backgroundOptions: { color: bgColor },
-      };
-
-      if(imageEnabled){
-        opts.image = currentLogoDataUrl;
-        const margin = Math.max(2, Math.round((40 - logoPercent) / 4));
-        qrCode.update({
-          ...opts,
-          imageOptions: { crossOrigin: 'anonymous', margin: margin }
-        });
-      } else {
-        qrCode.update({ ...opts, image: undefined });
-      }
-
-      if(force){ /* nothing extra required: update triggers redraw */ }
-    }
-
-    // Logo handling
-    let currentLogoDataUrl = null;
-    function onLogoChange(e){
+    // Improved logo handling
+    function onLogoChange(e) {
       const file = e.target.files && e.target.files[0];
-      if(!file) return;
+      if (!file) return;
+      
       const reader = new FileReader();
-      reader.onload = function(evt){
-        currentLogoDataUrl = evt.target.result;
-        logoUrlEl.value = '';
-        updateQR(true);
-      }
+      reader.onload = function(evt) {
+        // Create an image to get the original dimensions
+        const img = new Image();
+        img.onload = function() {
+          originalLogoWidth = img.width;
+          originalLogoHeight = img.height;
+          console.log('Original logo dimensions:', img.width, 'x', img.height);
+          
+          // Create a canvas to optimize the logo
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          
+          // Set canvas size to match QR code resolution (300x300)
+          canvas.width = 300;
+          canvas.height = 300;
+          
+          // Calculate logo size based on percentage
+          const logoPercent = Number(logoSizeEl.value);
+          const logoSize = (300 * logoPercent) / 100;
+          
+          // Calculate position to center the logo
+          const x = (300 - logoSize) / 2;
+          const y = (300 - logoSize) / 2;
+          
+          // Draw logo with high quality
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = 'high';
+          ctx.drawImage(img, x, y, logoSize, logoSize);
+          
+          // Convert to data URL
+          currentLogoDataUrl = canvas.toDataURL('image/png', 1.0);
+          logoUrlEl.value = '';
+          updateQR(true);
+        };
+        img.src = evt.target.result;
+      };
       reader.readAsDataURL(file);
     }
 
-    function onLogoUrlChange(){
+    function onLogoUrlChange() {
       const url = logoUrlEl.value.trim();
-      if(!url){ currentLogoDataUrl = null; updateQR(true); return; }
-      currentLogoDataUrl = url;
+      if (!url) { 
+        currentLogoDataUrl = null; 
+        updateQR(true); 
+        return; 
+      }
+      
+      // Load image from URL
+      const img = new Image();
+      img.crossOrigin = 'anonymous'; // For CORS support
+      img.onload = function() {
+        originalLogoWidth = img.width;
+        originalLogoHeight = img.height;
+        console.log('Logo loaded from URL:', img.width, 'x', img.height);
+        
+        // Create a canvas to optimize the logo
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Set canvas size
+        canvas.width = 300;
+        canvas.height = 300;
+        
+        // Calculate logo size
+        const logoPercent = Number(logoSizeEl.value);
+        const logoSize = (300 * logoPercent) / 100;
+        
+        // Calculate position
+        const x = (300 - logoSize) / 2;
+        const y = (300 - logoSize) / 2;
+        
+        // Draw with high quality
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+        ctx.drawImage(img, x, y, logoSize, logoSize);
+        
+        currentLogoDataUrl = canvas.toDataURL('image/png', 1.0);
+        updateQR(true);
+      };
+      
+      img.onerror = function() {
+        alert('Failed to load image from URL. Please check the URL and CORS settings.');
+        currentLogoDataUrl = null;
+        logoUrlEl.value = '';
+      };
+      
+      img.src = url;
+    }
+
+    function onLogoToggle() {
+      logoControls.style.display = useLogoEl.checked ? 'block' : 'none';
+      if (useLogoEl.checked && !currentLogoDataUrl) {
+        // If logo is toggled on but no logo is selected, show a message
+        console.log('Please upload or enter a logo URL');
+      }
       updateQR(true);
     }
 
-    function onLogoToggle(){
-      logoControls.style.display = useLogoEl.checked ? 'block' : 'none';
-      updateQR(true);
+    // Enhanced updateQR function for better logo handling
+    function updateQR(force = false) {
+      const data = dataEl.value || 'https://example.com';
+      const dotsType = shapeEl.value;
+      const dotsTypeMap = { square: 'square', rounded: 'rounded', dots: 'dots' };
+      
+      const imageEnabled = useLogoEl.checked && currentLogoDataUrl;
+      const logoPercent = Number(logoSizeEl.value);
+      
+      // Handle colors
+      let qrColor = qrColorEl.value;
+      let bgColor = transparentBgEl.checked ? 'transparent' : bgColorEl.value;
+      
+      // Get QR holder dimensions
+      const holderWidth = qrHolder.clientWidth;
+      const holderHeight = qrHolder.clientHeight;
+      
+      // Calculate optimal size for better quality
+      const qrSize = Math.min(holderWidth, holderHeight, 600);
+      
+      const opts = {
+        data: data,
+        width: qrSize,
+        height: qrSize,
+        dotsOptions: { 
+          color: qrColor, 
+          type: dotsTypeMap[dotsType] || 'square' 
+        },
+        backgroundOptions: { 
+          color: bgColor 
+        },
+      };
+      
+      if (imageEnabled && currentLogoDataUrl) {
+        opts.image = currentLogoDataUrl;
+        
+        // Calculate margin based on logo size (smaller logo = larger margin)
+        const baseMargin = 10;
+        const marginFactor = (100 - logoPercent) / 100;
+        const margin = Math.max(5, baseMargin * marginFactor);
+        
+        opts.imageOptions = { 
+          crossOrigin: 'anonymous', 
+          margin: margin,
+          imageSize: logoPercent / 100
+        };
+      }
+      
+      // Update the QR code instance with new size
+      if (qrCode) {
+        qrHolder.innerHTML = ''; // Clear previous
+      }
+      
+      qrCode = new QRCodeStyling(opts);
+      qrCode.append(qrHolder);
     }
 
     // Download function that includes text
@@ -1327,12 +1445,12 @@
       link.click();
     }
 
-    function resetDefaults(){
+    function resetDefaults() {
       dataEl.value = 'https://example.com';
       qrColorEl.value = '#000000'; 
-      qrColorHex.textContent='#000000';
+      qrColorHex.textContent = '#000000';
       bgColorEl.value = '#ffffff'; 
-      bgColorHex.textContent='#ffffff';
+      bgColorHex.textContent = '#ffffff';
       transparentBgEl.checked = false;
       bgColorEl.disabled = false;
       shapeEl.value = 'square';
@@ -1354,27 +1472,43 @@
       bottomTextColorEl.value = '#212529';
       updateTextStyle();
       useLogoEl.checked = false; 
-      logoControls.style.display='none';
+      logoControls.style.display = 'none';
       logoFileEl.value = null; 
-      logoUrlEl.value=''; 
+      logoUrlEl.value = ''; 
       currentLogoDataUrl = null;
-      logoSizeEl.value = 20; 
-      logoSizeVal.textContent='20%';
+      originalLogoWidth = 0;
+      originalLogoHeight = 0;
+      logoSizeEl.value = 25; 
+      logoSizeVal.textContent = '25%';
       updateQR(true);
     }
 
-    // Event listeners
-    logoFileEl.addEventListener('change', onLogoChange);
-    shapeEl.addEventListener('change', () => updateQR());
-    dataEl.addEventListener('input', () => updateQR());
-    logoSizeEl.addEventListener('input', () => updateLogoSize());
-    topTextEl.addEventListener('input', () => updateText());
-    bottomTextEl.addEventListener('input', () => updateText());
+    // Initialize
+    function init() {
+      // Set initial color values
+      qrColorHex.textContent = qrColorEl.value;
+      bgColorHex.textContent = bgColorEl.value;
+      
+      // Initialize QR code
+      updateQR(true);
+      
+      // Initialize language
+      updateLanguage();
+      
+      // Initialize text styling
+      updateTextStyle();
+      
+      // Set up event listeners
+      logoFileEl.addEventListener('change', onLogoChange);
+      shapeEl.addEventListener('change', () => updateQR());
+      dataEl.addEventListener('input', () => updateQR());
+      logoSizeEl.addEventListener('input', () => updateLogoSize());
+      topTextEl.addEventListener('input', () => updateText());
+      bottomTextEl.addEventListener('input', () => updateText());
+    }
 
-    // Initial draw
-    updateQR(true);
-    updateLanguage();
-    updateTextStyle();
+    // Start the application
+    init();
   </script>
 </body>
 </html>
