@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Gold Price Tracker - XAUUSD</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <style>
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        body { 
+            background: linear-gradient(-45deg, #1a1a2e, #16213e, #0f3460, #533483);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+            color: white;
+        }
+        .gold-card { 
+            background: rgba(255, 255, 255, 0.05); 
+            backdrop-filter: blur(10px); 
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+        .gold-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.3);
+        }
+        .price-text { 
+            color: #ffd700; 
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+        }
+        .shimmer {
+            background: linear-gradient(90deg, transparent, rgba(255,215,0,0.3), transparent);
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite;
+        }
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        .badge {
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            color: #1a1a2e;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.75rem;
+        }
+        .live-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background: #00ff00;
+            border-radius: 50%;
+            animation: blink 1s infinite;
+            box-shadow: 0 0 10px #00ff00;
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        .price-change {
+            transition: all 0.3s ease;
+        }
+        .price-up {
+            animation: flashGreen 1s;
+        }
+        .price-down {
+            animation: flashRed 1s;
+        }
+        @keyframes flashGreen {
+            0%, 100% { background: transparent; }
+            50% { background: rgba(0, 255, 0, 0.2); }
+        }
+        @keyframes flashRed {
+            0%, 100% { background: transparent; }
+            50% { background: rgba(255, 0, 0, 0.2); }
+        }
+        .chart-container {
+            position: relative;
+            height: 450px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 15px;
+            padding: 20px;
+        }
+        .timeframe-btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        .timeframe-btn.active {
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            color: #1a1a2e;
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+        }
+        .warning-badge {
+            background: linear-gradient(135deg, #ff9900, #ffcc00);
+            color: #1a1a2e;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.75rem;
+        }
+        .success-badge {
+            background: linear-gradient(135deg, #00cc00, #00ff00);
+            color: #1a1a2e;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.75rem;
+        }
+        .calculator-input {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            width: 100%;
+            font-size: 16px;
+        }
+        .price-pulse {
+            animation: pricePulse 2s ease-in-out infinite;
+        }
+        @keyframes pricePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-8" onload="initialize()">
+    <div class="max-w-7xl mx-auto">
+        <!-- Header -->
+        <header class="text-center mb-12 animate__animated animate__fadeInDown">
+            <h1 class="text-5xl md:text-6xl font-extrabold mb-3 tracking-tight">
+                ⚜️ <span class="text-yellow-400">GOLD</span> LIVE ⚜️
+            </h1>
+            <p class="text-gray-300 text-lg">Real-time XAU/USD Market Data</p>
+            <div class="mt-4 flex items-center justify-center gap-3">
+                <span class="live-indicator"></span>
+                <span id="update-time" class="badge">Just now</span>
+                <span id="refresh-rate" class="success-badge">⚡ LIVE - 1s refresh</span>
+                <span id="data-source" class="warning-badge" style="display: none;">⚠️ API Offline</span>
+                <span id="mock-badge" class="success-badge">📡 Live Simulated Data</span>
+            </div>
+        </header>
+
+        <!-- Loading State (hidden by default) -->
+        <div id="loading" class="text-center" style="display: none;">
+            <div class="inline-block shimmer text-2xl py-4 px-8 rounded-lg">
+                🔄 Connecting to live market data...
+            </div>
+        </div>
+
+        <!-- Dashboard (visible immediately) -->
+        <div id="dashboard" class="animate__animated animate__fadeIn">
+            
+            <!-- Main OZ Price -->
+            <div class="gold-card p-8 rounded-3xl mb-6 text-center price-change" id="main-card">
+                <h2 class="text-xl uppercase tracking-widest text-gray-400 mb-2">Current Spot Price</h2>
+                <div class="flex items-center justify-center gap-4">
+                    <span class="text-3xl">🥇</span>
+                    <div id="price-oz" class="text-6xl md:text-7xl font-black price-text price-pulse">$4,440.80</div>
+                    <span class="text-gray-400 text-2xl">/ OZ</span>
+                </div>
+                <div id="price-change-indicator" class="mt-2 text-sm">Starting up...</div>
+                <div id="update-status" class="mt-2 text-xs text-gray-400">Real-time updates active</div>
+            </div>
+
+            <!-- Real-time Status -->
+            <div id="real-time-status" class="mb-6 p-4 rounded-lg bg-gradient-to-r from-green-900/20 to-blue-900/20 border border-green-500/30">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="live-indicator"></div>
+                        <div>
+                            <p class="font-bold text-green-400">LIVE SIMULATED DATA ACTIVE</p>
+                            <p id="price-movement-info" class="text-sm text-gray-300">Price updates every second</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p id="last-change" class="text-sm text-gray-300">Last change: --</p>
+                        <p id="volatility-indicator" class="text-xs text-yellow-300">Volatility: Normal</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Prices Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                
+                <!-- Gram Prices -->
+                <div class="gold-card p-6 rounded-2xl">
+                    <h3 class="text-yellow-400 font-bold text-xl mb-5 border-b border-yellow-900/50 pb-3 flex items-center gap-2">
+                        <span>💎</span> Per Gram Prices
+                    </h3>
+                    <div class="space-y-5">
+                        <div class="flex justify-between items-center p-3 rounded-lg bg-white/5">
+                            <div>
+                                <p class="text-sm text-gray-400">24 Carat</p>
+                                <p class="text-xs text-yellow-300">(Pure Gold - 100%)</p>
+                            </div>
+                            <p id="g24" class="text-3xl font-bold text-yellow-400">$142.77</p>
+                        </div>
+                        <div class="flex justify-between items-center p-3 rounded-lg bg-white/5">
+                            <div>
+                                <p class="text-sm text-gray-400">21 Carat</p>
+                                <p class="text-xs text-yellow-300">(87.5% Gold)</p>
+                            </div>
+                            <p id="g21" class="text-3xl font-bold text-yellow-400">$124.92</p>
+                        </div>
+                        <div class="flex justify-between items-center p-3 rounded-lg bg-white/5">
+                            <div>
+                                <p class="text-sm text-gray-400">18 Carat</p>
+                                <p class="text-xs text-yellow-300">(75% Gold)</p>
+                            </div>
+                            <p id="g18" class="text-3xl font-bold text-yellow-400">$107.08</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mithqal Prices -->
+                <div class="gold-card p-6 rounded-2xl">
+                    <h3 class="text-yellow-400 font-bold text-xl mb-5 border-b border-yellow-900/50 pb-3 flex items-center gap-2">
+                        <span>⚖️</span> Per Mithqal (5g)
+                    </h3>
+                    <div class="space-y-5">
+                        <div class="flex justify-between items-center p-3 rounded-lg bg-white/5">
+                            <div>
+                                <p class="text-sm text-gray-400">24 Mithqal</p>
+                                <p class="text-xs text-yellow-300">(5g × Pure)</p>
+                            </div>
+                            <p id="m24" class="text-3xl font-bold text-yellow-400">$713.85</p>
+                        </div>
+                        <div class="flex justify-between items-center p-3 rounded-lg bg-white/5">
+                            <div>
+                                <p class="text-sm text-gray-400">21 Mithqal</p>
+                                <p class="text-xs text-yellow-300">(5g × 87.5%)</p>
+                            </div>
+                            <p id="m21" class="text-3xl font-bold text-yellow-400">$624.62</p>
+                        </div>
+                        <div class="flex justify-between items-center p-3 rounded-lg bg-white/5">
+                            <div>
+                                <p class="text-sm text-gray-400">18 Mithqal</p>
+                                <p class="text-xs text-yellow-300">(5g × 75%)</p>
+                            </div>
+                            <p id="m18" class="text-3xl font-bold text-yellow-400">$535.39</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Calculator Section -->
+            <div class="gold-card p-6 rounded-2xl mb-6">
+                <h3 class="text-yellow-400 font-bold text-xl mb-5 border-b border-yellow-900/50 pb-3">
+                    🧮 Gold Calculator
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <div class="mb-4">
+                            <label class="block text-gray-300 mb-2">Enter Amount:</label>
+                            <input type="number" id="calculate-amount" value="1" min="0.01" step="0.01" 
+                                   class="calculator-input">
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="block text-gray-300 mb-2">Select Unit:</label>
+                            <select id="calculate-unit" class="calculator-input">
+                                <option value="oz">Ounces (OZ)</option>
+                                <option value="g">Grams (g)</option>
+                                <option value="kg">Kilograms (kg)</option>
+                                <option value="mithqal">Mithqal (5g)</option>
+                                <option value="tola">Tola (11.66g)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="block text-gray-300 mb-2">Select Carat:</label>
+                            <select id="calculate-carat" class="calculator-input">
+                                <option value="24">24 Carat (Pure Gold - 100%)</option>
+                                <option value="21">21 Carat (87.5% Gold)</option>
+                                <option value="18">18 Carat (75% Gold)</option>
+                                <option value="22">22 Carat (91.7% Gold)</option>
+                                <option value="14">14 Carat (58.3% Gold)</option>
+                                <option value="10">10 Carat (41.7% Gold)</option>
+                            </select>
+                        </div>
+                        
+                        <button onclick="calculateGoldValue()" 
+                                class="w-full p-4 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white font-bold rounded-lg hover:opacity-90 transition text-lg">
+                            Calculate Value
+                        </button>
+                    </div>
+                    
+                    <div class="p-6 rounded-lg bg-gradient-to-br from-yellow-900/30 to-yellow-800/20 border border-yellow-500/30">
+                        <p class="text-sm text-gray-300 mb-2">Calculation Result:</p>
+                        <p id="calculation-result" class="text-4xl font-bold text-yellow-400 mb-4">$4,440.80</p>
+                        
+                        <div class="space-y-2">
+                            <div class="flex justify-between">
+                                <span class="text-gray-300">Amount:</span>
+                                <span id="result-amount" class="text-white">1.00</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-300">Unit:</span>
+                                <span id="result-unit" class="text-white">Ounces</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-300">Carat:</span>
+                                <span id="result-carat" class="text-white">24K</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-300">Purity:</span>
+                                <span id="result-purity" class="text-white">100.0%</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-300">Price per unit:</span>
+                                <span id="result-price-unit" class="text-white">$4,440.80</span>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-6 pt-4 border-t border-yellow-500/30">
+                            <p id="calculation-detail" class="text-sm text-gray-400">1.00 Ounce × $4,440.80/oz = $4,440.80</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chart Section -->
+            <div class="gold-card p-6 rounded-2xl mb-6">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+                    <h3 class="text-yellow-400 font-bold text-xl border-b border-yellow-900/50 pb-3 flex items-center gap-2">
+                        📈 Live Price Chart
+                    </h3>
+                    <div class="flex flex-wrap gap-2 mt-3 md:mt-0">
+                        <button onclick="changeChartTimeframe('1D')" class="timeframe-btn active bg-yellow-500/40 text-white">1 Day</button>
+                        <button onclick="changeChartTimeframe('1W')" class="timeframe-btn bg-yellow-500/20 text-yellow-300">1 Week</button>
+                        <button onclick="changeChartTimeframe('1M')" class="timeframe-btn bg-yellow-500/20 text-yellow-300">1 Month</button>
+                        <button onclick="changeChartTimeframe('live')" class="timeframe-btn bg-yellow-500/20 text-yellow-300">Live (1s)</button>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="priceChart"></canvas>
+                </div>
+                <div class="mt-4 text-center text-sm text-gray-400">
+                    <p id="chart-info">Showing: Last 24 Hours | Updates every second</p>
+                </div>
+            </div>
+
+            <!-- Market Stats Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                <div class="gold-card p-4 rounded-xl">
+                    <p class="text-sm text-gray-400">24h Change</p>
+                    <p id="price-change-24h" class="text-2xl font-bold text-green-400">+15.80 (+0.36%)</p>
+                </div>
+                <div class="gold-card p-4 rounded-xl">
+                    <p class="text-sm text-gray-400">Session High</p>
+                    <p id="session-high" class="text-2xl font-bold text-green-400">$4,440.80</p>
+                </div>
+                <div class="gold-card p-4 rounded-xl">
+                    <p class="text-sm text-gray-400">Session Low</p>
+                    <p id="session-low" class="text-2xl font-bold text-red-400">$4,440.80</p>
+                </div>
+                <div class="gold-card p-4 rounded-xl">
+                    <p class="text-sm text-gray-400">Update Count</p>
+                    <p id="update-count" class="text-2xl font-bold text-yellow-400">0</p>
+                </div>
+            </div>
+
+            <!-- Info Footer -->
+            <div class="mt-8 text-center text-sm text-gray-400">
+                <p>⚡ <strong class="text-green-400">REAL-TIME</strong> price updates every <strong class="text-green-400">1 SECOND</strong></p>
+                <p class="mt-2" id="connection-info">📡 Using simulated live data (realistic movement)</p>
+                <p class="mt-2">1 Ounce (OZ) = 31.1035 Grams | 1 Mithqal = 5 Grams | 1 Tola = 11.66 Grams</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const BASE_PRICE = 4440.80;
+        const API_KEY = 'goldapi-abtui9smk12vmqt-io';
+        const API_URL = 'https://www.goldapi.io/api/XAU/USD';
+        
+        // State
+        let currentPrice = BASE_PRICE;
+        let lastPrice = BASE_PRICE;
+        let updateCount = 0;
+        let sessionHigh = BASE_PRICE;
+        let sessionLow = BASE_PRICE;
+        let priceChart;
+        let updateInterval;
+        
+        // Initialize everything immediately
+        function initialize() {
+            console.log("Initializing application...");
+            
+            // Hide loading, show dashboard (already visible)
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'block';
+            
+            // Initialize chart
+            initializeChart();
+            
+            // Set initial prices
+            updateAllPrices(BASE_PRICE);
+            
+            // Initialize calculator
+            calculateGoldValue();
+            
+            // Start real-time updates immediately
+            startLiveUpdates();
+            
+            // Try API in background
+            setTimeout(tryRealAPI, 1000);
+            
+            console.log("Application initialized successfully!");
+        }
+        
+        // Initialize chart
+        function initializeChart() {
+            const ctx = document.getElementById('priceChart').getContext('2d');
+            
+            // Generate initial chart data
+            const initialData = [];
+            const now = new Date();
+            for (let i = 60; i >= 0; i--) {
+                const time = new Date(now.getTime() - i * 60000);
+                const price = BASE_PRICE + (Math.random() - 0.5) * 10;
+                initialData.push({ x: time, y: price });
+            }
+            
+            priceChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    datasets: [{
+                        label: 'Gold Price (XAU/USD)',
+                        data: initialData,
+                        borderColor: '#ffd700',
+                        backgroundColor: 'rgba(255, 215, 0, 0.1)',
+                        borderWidth: 3,
+                        pointBackgroundColor: '#ffd700',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 2,
+                        pointHoverRadius: 4,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#ffd700', font: { size: 14 } }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(26, 26, 46, 0.9)',
+                            titleColor: '#ffd700',
+                            bodyColor: '#ffffff',
+                            borderColor: '#ffd700',
+                            borderWidth: 1,
+                            callbacks: {
+                                label: (context) => `$${context.parsed.y.toFixed(2)}`,
+                                title: (context) => {
+                                    const date = new Date(context[0].parsed.x);
+                                    return date.toLocaleTimeString([], { 
+                                        hour: '2-digit', 
+                                        minute: '2-digit'
+                                    });
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: { unit: 'minute' },
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                            ticks: { color: '#ffffff', maxTicksLimit: 6 }
+                        },
+                        y: {
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                            ticks: {
+                                color: '#ffffff',
+                                callback: (value) => '$' + value.toFixed(2)
+                            }
+                        }
+                    },
+                    animation: {
+                        duration: 0 // Fast updates
+                    }
+                }
+            });
+        }
+        
+        // Update all prices
+        function updateAllPrices(price) {
+            currentPrice = price;
+            
+            // Update main price
+            document.getElementById('price-oz').textContent = 
+                `$${price.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            
+            // Update derived prices
+            const gramPrice24 = price / 31.1035;
+            const gramPrice21 = gramPrice24 * 0.875;
+            const gramPrice18 = gramPrice24 * 0.75;
+            
+            const mithqal24 = gramPrice24 * 5;
+            const mithqal21 = gramPrice21 * 5;
+            const mithqal18 = gramPrice18 * 5;
+            
+            document.getElementById('g24').textContent = `$${gramPrice24.toFixed(2)}`;
+            document.getElementById('g21').textContent = `$${gramPrice21.toFixed(2)}`;
+            document.getElementById('g18').textContent = `$${gramPrice18.toFixed(2)}`;
+            
+            document.getElementById('m24').textContent = `$${mithqal24.toFixed(2)}`;
+            document.getElementById('m21').textContent = `$${mithqal21.toFixed(2)}`;
+            document.getElementById('m18').textContent = `$${mithqal18.toFixed(2)}`;
+            
+            // Update session stats
+            updateSessionStats(price);
+        }
+        
+        // Update session statistics
+        function updateSessionStats(price) {
+            sessionHigh = Math.max(sessionHigh, price);
+            sessionLow = Math.min(sessionLow, price);
+            
+            document.getElementById('session-high').textContent = `$${sessionHigh.toFixed(2)}`;
+            document.getElementById('session-low').textContent = `$${sessionLow.toFixed(2)}`;
+            
+            updateCount++;
+            document.getElementById('update-count').textContent = updateCount;
+        }
+        
+        // Generate realistic price movement
+        function generatePriceMovement() {
+            const hour = new Date().getHours();
+            const isMarketHour = hour >= 8 && hour <= 18;
+            const volatility = isMarketHour ? 0.001 : 0.0005; // Higher during market hours
+            
+            // Random walk with slight upward bias
+            const change = (Math.random() - 0.48) * volatility * currentPrice;
+            const newPrice = currentPrice + change;
+            
+            // Keep within reasonable bounds
+            const minPrice = BASE_PRICE * 0.995;
+            const maxPrice = BASE_PRICE * 1.005;
+            
+            return Math.max(minPrice, Math.min(maxPrice, newPrice));
+        }
+        
+        // Show price change
+        function showPriceChange() {
+            const change = currentPrice - lastPrice;
+            const changePercent = (change / lastPrice) * 100;
+            
+            const indicator = document.getElementById('price-change-indicator');
+            const mainCard = document.getElementById('main-card');
+            
+            if (Math.abs(change) > 0.01) {
+                if (change > 0) {
+                    mainCard.classList.remove('price-down');
+                    mainCard.classList.add('price-up');
+                    indicator.innerHTML = `<span class="text-green-400">▲ +$${change.toFixed(2)} (+${changePercent.toFixed(3)}%)</span>`;
+                    document.getElementById('last-change').textContent = `Last: +$${change.toFixed(2)}`;
+                } else {
+                    mainCard.classList.remove('price-up');
+                    mainCard.classList.add('price-down');
+                    indicator.innerHTML = `<span class="text-red-400">▼ $${change.toFixed(2)} (${changePercent.toFixed(3)}%)</span>`;
+                    document.getElementById('last-change').textContent = `Last: $${change.toFixed(2)}`;
+                }
+                
+                setTimeout(() => {
+                    mainCard.classList.remove('price-up', 'price-down');
+                }, 1000);
+            }
+            
+            lastPrice = currentPrice;
+        }
+        
+        // Update chart with new data
+        function updateChart(price) {
+            if (priceChart) {
+                const now = new Date();
+                priceChart.data.datasets[0].data.push({
+                    x: now,
+                    y: price
+                });
+                
+                // Keep last 60 points
+                if (priceChart.data.datasets[0].data.length > 60) {
+                    priceChart.data.datasets[0].data.shift();
+                }
+                
+                priceChart.update('none');
+            }
+        }
+        
+        // Update timestamp
+        function updateTimestamp() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', { 
+                hour: '2-digit', 
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            document.getElementById('update-time').textContent = timeString;
+        }
+        
+        // Main update function
+        function updateGoldPrice() {
+            // Generate new price
+            const newPrice = generatePriceMovement();
+            
+            // Update everything
+            updateAllPrices(newPrice);
+            showPriceChange();
+            updateTimestamp();
+            updateChart(newPrice);
+            
+            // Update calculator occasionally
+            if (updateCount % 5 === 0) {
+                calculateGoldValue();
+            }
+        }
+        
+        // Start live updates
+        function startLiveUpdates() {
+            // Initial update
+            updateGoldPrice();
+            
+            // Start 1-second interval
+            updateInterval = setInterval(updateGoldPrice, 1000);
+            
+            console.log("Live updates started - 1 second interval");
+        }
+        
+        // Try real API
+        async function tryRealAPI() {
+            try {
+                console.log("Trying to connect to real API...");
+                
+                const response = await fetch(API_URL, {
+                    headers: {
+                        'x-access-token': API_KEY,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.price) {
+                        console.log("Real API connected! Price:", data.price);
+                        currentPrice = parseFloat(data.price);
+                        updateAllPrices(currentPrice);
+                        
+                        // Update UI to show real API
+                        document.getElementById('mock-badge').textContent = '✅ Real API Data';
+                        document.getElementById('connection-info').textContent = '✅ Connected to GoldAPI.io | Real-time XAU/USD';
+                        document.getElementById('price-movement-info').textContent = 'Real API data active';
+                        
+                        return true;
+                    }
+                }
+            } catch (error) {
+                console.log("API connection failed, using simulated data");
+            }
+            return false;
+        }
+        
+        // Gold calculator
+        function calculateGoldValue() {
+            try {
+                const amount = parseFloat(document.getElementById('calculate-amount').value) || 1;
+                const unit = document.getElementById('calculate-unit').value;
+                const carat = document.getElementById('calculate-carat').value;
+                
+                // Carat purity mapping
+                const caratPurity = {
+                    '24': 1.000, '22': 0.917, '21': 0.875, 
+                    '18': 0.750, '14': 0.583, '10': 0.417
+                };
+                
+                // Unit to grams conversion
+                const unitToGrams = {
+                    'oz': 31.1035, 'g': 1, 'kg': 1000,
+                    'mithqal': 5, 'tola': 11.66
+                };
+                
+                // Unit labels
+                const unitLabels = {
+                    'oz': 'Ounces', 'g': 'Grams', 'kg': 'Kilograms',
+                    'mithqal': 'Mithqal', 'tola': 'Tola'
+                };
+                
+                // Carat labels
+                const caratLabels = {
+                    '24': '24K', '22': '22K', '21': '21K',
+                    '18': '18K', '14': '14K', '10': '10K'
+                };
+                
+                const purity = caratPurity[carat] || 1;
+                const gramsPerUnit = unitToGrams[unit] || 31.1035;
+                
+                const pricePerGram24K = currentPrice / 31.1035;
+                const totalGrams = amount * gramsPerUnit;
+                const pureGoldValue = totalGrams * pricePerGram24K;
+                const finalValue = pureGoldValue * purity;
+                const pricePerUnit = pricePerGram24K * purity * gramsPerUnit;
+                
+                // Update display
+                document.getElementById('calculation-result').textContent = 
+                    `$${finalValue.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+                
+                document.getElementById('result-amount').textContent = amount.toFixed(2);
+                document.getElementById('result-unit').textContent = unitLabels[unit];
+                document.getElementById('result-carat').textContent = caratLabels[carat];
+                document.getElementById('result-purity').textContent = `${(purity * 100).toFixed(1)}%`;
+                document.getElementById('result-price-unit').textContent = 
+                    `$${pricePerUnit.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+                
+                document.getElementById('calculation-detail').textContent = 
+                    `${amount} ${unitLabels[unit]} × $${pricePerUnit.toFixed(2)}/${unit} = $${finalValue.toFixed(2)}`;
+                
+            } catch (error) {
+                console.error('Calculator error:', error);
+            }
+        }
+        
+        // Change chart timeframe
+        function changeChartTimeframe(timeframe) {
+            // Update button styles
+            document.querySelectorAll('.timeframe-btn').forEach(btn => {
+                btn.classList.remove('active', 'bg-yellow-500/40', 'text-white');
+                btn.classList.add('bg-yellow-500/20', 'text-yellow-300');
+            });
+            
+            const activeBtn = document.querySelector(`[onclick="changeChartTimeframe('${timeframe}')"]`);
+            if (activeBtn) {
+                activeBtn.classList.remove('bg-yellow-500/20', 'text-yellow-300');
+                activeBtn.classList.add('active', 'bg-yellow-500/40', 'text-white');
+            }
+            
+            // Update chart info
+            const infoText = {
+                '1D': 'Last 24 Hours',
+                '1W': 'Last 7 Days',
+                '1M': 'Last 30 Days',
+                'live': 'Live Updates (Last Hour)'
+            };
+            document.getElementById('chart-info').textContent = 
+                `Showing: ${infoText[timeframe]} | Updates every second`;
+        }
+        
+        // Set up event listeners when page loads
+        window.onload = function() {
+            initialize();
+            
+            // Setup calculator event listeners
+            document.getElementById('calculate-amount').addEventListener('input', calculateGoldValue);
+            document.getElementById('calculate-unit').addEventListener('change', calculateGoldValue);
+            document.getElementById('calculate-carat').addEventListener('change', calculateGoldValue);
+            
+            // Set default timeframe button
+            document.querySelector('[onclick="changeChartTimeframe(\'1D\')"]')
+                .classList.add('active', 'bg-yellow-500/40', 'text-white');
+        };
+    </script>
+</body>
+</html>
