@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Live Gold Price Tracker - XAUUSD</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -19,6 +19,8 @@
             background-size: 400% 400%;
             animation: gradient 15s ease infinite;
             color: white;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-text-size-adjust: 100%;
         }
         .gold-card { 
             background: rgba(255, 255, 255, 0.05); 
@@ -27,12 +29,18 @@
             transition: all 0.3s ease;
         }
         .gold-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255, 215, 0, 0.3);
         }
         .price-text { 
             color: #ffd700; 
-            text-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
+            font-size: clamp(2.5rem, 8vw, 4rem);
+        }
+        @media (max-width: 640px) {
+            .price-text {
+                font-size: 2.5rem;
+            }
         }
         .shimmer {
             background: linear-gradient(90deg, transparent, rgba(255,215,0,0.3), transparent);
@@ -46,19 +54,21 @@
         .badge {
             background: linear-gradient(135deg, #ffd700, #ffed4e);
             color: #1a1a2e;
-            padding: 4px 12px;
+            padding: 3px 8px;
             border-radius: 20px;
             font-weight: bold;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
+            white-space: nowrap;
         }
         .live-indicator {
             display: inline-block;
-            width: 10px;
-            height: 10px;
+            width: 8px;
+            height: 8px;
             background: #00ff00;
             border-radius: 50%;
             animation: blink 1s infinite;
-            box-shadow: 0 0 10px #00ff00;
+            box-shadow: 0 0 5px #00ff00;
+            flex-shrink: 0;
         }
         @keyframes blink {
             0%, 100% { opacity: 1; }
@@ -83,47 +93,72 @@
         }
         .chart-container {
             position: relative;
-            height: 450px;
+            height: 300px;
             background: rgba(255, 255, 255, 0.03);
-            border-radius: 15px;
-            padding: 20px;
+            border-radius: 12px;
+            padding: 12px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+                padding: 20px;
+            }
         }
         .timeframe-btn {
-            padding: 8px 16px;
+            padding: 6px 12px;
             border-radius: 8px;
             transition: all 0.3s ease;
             font-weight: 500;
+            font-size: 0.8rem;
+            white-space: nowrap;
+        }
+        @media (min-width: 768px) {
+            .timeframe-btn {
+                padding: 8px 16px;
+                font-size: 0.9rem;
+            }
         }
         .timeframe-btn.active {
             background: linear-gradient(135deg, #ffd700, #ffed4e);
             color: #1a1a2e;
             transform: scale(1.05);
-            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+            box-shadow: 0 3px 10px rgba(255, 215, 0, 0.3);
         }
         .warning-badge {
             background: linear-gradient(135deg, #ff9900, #ffcc00);
             color: #1a1a2e;
-            padding: 4px 12px;
+            padding: 3px 8px;
             border-radius: 20px;
             font-weight: bold;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
+            white-space: nowrap;
         }
         .success-badge {
             background: linear-gradient(135deg, #00cc00, #00ff00);
             color: #1a1a2e;
-            padding: 4px 12px;
+            padding: 3px 8px;
             border-radius: 20px;
             font-weight: bold;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
+            white-space: nowrap;
         }
         .calculator-input {
             background: rgba(255, 255, 255, 0.1);
-            border: 2px solid rgba(255, 215, 0, 0.3);
+            border: 1px solid rgba(255, 215, 0, 0.3);
             color: white;
-            padding: 12px;
+            padding: 10px;
             border-radius: 8px;
             width: 100%;
-            font-size: 16px;
+            font-size: 14px;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+        }
+        @media (min-width: 768px) {
+            .calculator-input {
+                padding: 12px;
+                font-size: 16px;
+            }
         }
         .price-pulse {
             animation: pricePulse 2s ease-in-out infinite;
@@ -132,123 +167,183 @@
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.02); }
         }
+        
+        /* Mobile-specific optimizations */
+        @media (max-width: 640px) {
+            body {
+                padding: 8px;
+                overflow-x: hidden;
+            }
+            
+            .mobile-padding {
+                padding-left: 8px;
+                padding-right: 8px;
+            }
+            
+            .mobile-text-sm {
+                font-size: 0.875rem;
+            }
+            
+            .mobile-text-xs {
+                font-size: 0.75rem;
+            }
+            
+            .mobile-flex-col {
+                flex-direction: column;
+            }
+            
+            .mobile-w-full {
+                width: 100%;
+            }
+            
+            .mobile-gap-2 {
+                gap: 8px;
+            }
+            
+            .mobile-mb-3 {
+                margin-bottom: 12px;
+            }
+        }
+        
+        /* Better touch targets */
+        button, select, input {
+            touch-action: manipulation;
+        }
+        
+        select {
+            cursor: pointer;
+        }
+        
+        /* Hide scrollbar but allow scrolling */
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        
+        /* Mobile menu/button spacing */
+        .mobile-spacing {
+            margin-bottom: 12px;
+        }
     </style>
 </head>
-<body class="min-h-screen p-4 md:p-8" onload="initialize()">
+<body class="min-h-screen p-2 sm:p-4 md:p-8">
     <div class="max-w-7xl mx-auto">
         <!-- Header -->
-        <header class="text-center mb-12 animate__animated animate__fadeInDown">
-            <h1 class="text-5xl md:text-6xl font-extrabold mb-3 tracking-tight">
+        <header class="text-center mb-6 md:mb-12 animate__animated animate__fadeInDown mobile-padding">
+            <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold mb-2 md:mb-3 tracking-tight">
                 ⚜️ <span class="text-yellow-400">GOLD</span> LIVE ⚜️
             </h1>
-            <p class="text-gray-300 text-lg">Real-time XAU/USD Market Data</p>
-            <div class="mt-4 flex items-center justify-center gap-3">
+            <p class="text-gray-300 text-sm sm:text-base md:text-lg mobile-mb-3">Real-time XAU/USD Market Data</p>
+            <div class="flex flex-wrap justify-center items-center gap-2 mt-3 md:mt-4">
                 <span class="live-indicator"></span>
-                <span id="update-time" class="badge">Just now</span>
-                <span id="refresh-rate" class="success-badge">⚡ LIVE - 1s refresh</span>
-                <span id="data-source" class="warning-badge" style="display: none;">⚠️ API Offline</span>
-                <span id="mock-badge" class="success-badge">📡 Live Simulated Data</span>
+                <span id="update-time" class="badge">Now</span>
+                <span id="refresh-rate" class="success-badge">⚡ 1s</span>
+                <span id="data-source" class="warning-badge" style="display: none;">API Off</span>
+                <span id="mock-badge" class="success-badge">📡 Live</span>
             </div>
         </header>
 
         <!-- Loading State (hidden by default) -->
         <div id="loading" class="text-center" style="display: none;">
-            <div class="inline-block shimmer text-2xl py-4 px-8 rounded-lg">
-                🔄 Connecting to live market data...
+            <div class="inline-block shimmer text-xl sm:text-2xl py-3 sm:py-4 px-6 sm:px-8 rounded-lg">
+                🔄 Loading...
             </div>
         </div>
 
-        <!-- Dashboard (visible immediately) -->
+        <!-- Dashboard -->
         <div id="dashboard" class="animate__animated animate__fadeIn">
             
             <!-- Main OZ Price -->
-            <div class="gold-card p-8 rounded-3xl mb-6 text-center price-change" id="main-card">
-                <h2 class="text-xl uppercase tracking-widest text-gray-400 mb-2">Current Spot Price</h2>
-                <div class="flex items-center justify-center gap-4">
-                    <span class="text-3xl">🥇</span>
-                    <div id="price-oz" class="text-6xl md:text-7xl font-black price-text price-pulse">$4,440.80</div>
-                    <span class="text-gray-400 text-2xl">/ OZ</span>
+            <div class="gold-card p-4 sm:p-6 md:p-8 rounded-2xl md:rounded-3xl mb-4 md:mb-6 text-center price-change mobile-mb-3" id="main-card">
+                <h2 class="text-sm sm:text-base md:text-xl uppercase tracking-widest text-gray-400 mb-2">Current Spot Price</h2>
+                <div class="flex items-center justify-center gap-2 sm:gap-3 md:gap-4">
+                    <span class="text-2xl sm:text-3xl">🥇</span>
+                    <div id="price-oz" class="price-text font-black price-pulse">$4,440.80</div>
+                    <span class="text-gray-400 text-lg sm:text-xl md:text-2xl">/ OZ</span>
                 </div>
-                <div id="price-change-indicator" class="mt-2 text-sm">Starting up...</div>
-                <div id="update-status" class="mt-2 text-xs text-gray-400">Real-time updates active</div>
+                <div id="price-change-indicator" class="mt-2 text-xs sm:text-sm">Starting up...</div>
+                <div id="update-status" class="mt-1 text-xs text-gray-400">Real-time updates active</div>
             </div>
 
             <!-- Real-time Status -->
-            <div id="real-time-status" class="mb-6 p-4 rounded-lg bg-gradient-to-r from-green-900/20 to-blue-900/20 border border-green-500/30">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-3">
+            <div id="real-time-status" class="mb-4 md:mb-6 p-3 sm:p-4 rounded-lg bg-gradient-to-r from-green-900/20 to-blue-900/20 border border-green-500/30 mobile-mb-3">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-0">
+                    <div class="flex items-center gap-2 sm:gap-3">
                         <div class="live-indicator"></div>
                         <div>
-                            <p class="font-bold text-green-400">LIVE SIMULATED DATA ACTIVE</p>
-                            <p id="price-movement-info" class="text-sm text-gray-300">Price updates every second</p>
+                            <p class="font-bold text-green-400 text-sm sm:text-base">LIVE DATA ACTIVE</p>
+                            <p id="price-movement-info" class="text-xs sm:text-sm text-gray-300">Updates every second</p>
                         </div>
                     </div>
-                    <div class="text-right">
-                        <p id="last-change" class="text-sm text-gray-300">Last change: --</p>
+                    <div class="text-left sm:text-right">
+                        <p id="last-change" class="text-xs sm:text-sm text-gray-300">Last: --</p>
                         <p id="volatility-indicator" class="text-xs text-yellow-300">Volatility: Normal</p>
                     </div>
                 </div>
             </div>
 
             <!-- Prices Grid -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mb-4 md:mb-6 mobile-mb-3">
                 
                 <!-- Gram Prices -->
-                <div class="gold-card p-6 rounded-2xl">
-                    <h3 class="text-yellow-400 font-bold text-xl mb-5 border-b border-yellow-900/50 pb-3 flex items-center gap-2">
-                        <span>💎</span> Per Gram Prices
+                <div class="gold-card p-4 sm:p-6 rounded-xl sm:rounded-2xl">
+                    <h3 class="text-yellow-400 font-bold text-lg sm:text-xl mb-3 sm:mb-5 border-b border-yellow-900/50 pb-2 sm:pb-3 flex items-center gap-2">
+                        <span>💎</span> <span class="text-sm sm:text-base md:text-lg">Per Gram Prices</span>
                     </h3>
-                    <div class="space-y-5">
-                        <div class="flex justify-between items-center p-3 rounded-lg bg-white/5">
+                    <div class="space-y-3 sm:space-y-4">
+                        <div class="flex justify-between items-center p-2 sm:p-3 rounded-lg bg-white/5">
                             <div>
-                                <p class="text-sm text-gray-400">24 Carat</p>
+                                <p class="text-xs sm:text-sm text-gray-400">24 Carat</p>
                                 <p class="text-xs text-yellow-300">(Pure Gold - 100%)</p>
                             </div>
-                            <p id="g24" class="text-3xl font-bold text-yellow-400">$142.77</p>
+                            <p id="g24" class="text-xl sm:text-2xl md:text-3xl font-bold text-yellow-400">$142.77</p>
                         </div>
-                        <div class="flex justify-between items-center p-3 rounded-lg bg-white/5">
+                        <div class="flex justify-between items-center p-2 sm:p-3 rounded-lg bg-white/5">
                             <div>
-                                <p class="text-sm text-gray-400">21 Carat</p>
+                                <p class="text-xs sm:text-sm text-gray-400">21 Carat</p>
                                 <p class="text-xs text-yellow-300">(87.5% Gold)</p>
                             </div>
-                            <p id="g21" class="text-3xl font-bold text-yellow-400">$124.92</p>
+                            <p id="g21" class="text-xl sm:text-2xl md:text-3xl font-bold text-yellow-400">$124.92</p>
                         </div>
-                        <div class="flex justify-between items-center p-3 rounded-lg bg-white/5">
+                        <div class="flex justify-between items-center p-2 sm:p-3 rounded-lg bg-white/5">
                             <div>
-                                <p class="text-sm text-gray-400">18 Carat</p>
+                                <p class="text-xs sm:text-sm text-gray-400">18 Carat</p>
                                 <p class="text-xs text-yellow-300">(75% Gold)</p>
                             </div>
-                            <p id="g18" class="text-3xl font-bold text-yellow-400">$107.08</p>
+                            <p id="g18" class="text-xl sm:text-2xl md:text-3xl font-bold text-yellow-400">$107.08</p>
                         </div>
                     </div>
                 </div>
 
                 <!-- Mithqal Prices -->
-                <div class="gold-card p-6 rounded-2xl">
-                    <h3 class="text-yellow-400 font-bold text-xl mb-5 border-b border-yellow-900/50 pb-3 flex items-center gap-2">
-                        <span>⚖️</span> Per Mithqal (5g)
+                <div class="gold-card p-4 sm:p-6 rounded-xl sm:rounded-2xl">
+                    <h3 class="text-yellow-400 font-bold text-lg sm:text-xl mb-3 sm:mb-5 border-b border-yellow-900/50 pb-2 sm:pb-3 flex items-center gap-2">
+                        <span>⚖️</span> <span class="text-sm sm:text-base md:text-lg">Per Mithqal (5g)</span>
                     </h3>
-                    <div class="space-y-5">
-                        <div class="flex justify-between items-center p-3 rounded-lg bg-white/5">
+                    <div class="space-y-3 sm:space-y-4">
+                        <div class="flex justify-between items-center p-2 sm:p-3 rounded-lg bg-white/5">
                             <div>
-                                <p class="text-sm text-gray-400">24 Mithqal</p>
+                                <p class="text-xs sm:text-sm text-gray-400">24 Mithqal</p>
                                 <p class="text-xs text-yellow-300">(5g × Pure)</p>
                             </div>
-                            <p id="m24" class="text-3xl font-bold text-yellow-400">$713.85</p>
+                            <p id="m24" class="text-xl sm:text-2xl md:text-3xl font-bold text-yellow-400">$713.85</p>
                         </div>
-                        <div class="flex justify-between items-center p-3 rounded-lg bg-white/5">
+                        <div class="flex justify-between items-center p-2 sm:p-3 rounded-lg bg-white/5">
                             <div>
-                                <p class="text-sm text-gray-400">21 Mithqal</p>
+                                <p class="text-xs sm:text-sm text-gray-400">21 Mithqal</p>
                                 <p class="text-xs text-yellow-300">(5g × 87.5%)</p>
                             </div>
-                            <p id="m21" class="text-3xl font-bold text-yellow-400">$624.62</p>
+                            <p id="m21" class="text-xl sm:text-2xl md:text-3xl font-bold text-yellow-400">$624.62</p>
                         </div>
-                        <div class="flex justify-between items-center p-3 rounded-lg bg-white/5">
+                        <div class="flex justify-between items-center p-2 sm:p-3 rounded-lg bg-white/5">
                             <div>
-                                <p class="text-sm text-gray-400">18 Mithqal</p>
+                                <p class="text-xs sm:text-sm text-gray-400">18 Mithqal</p>
                                 <p class="text-xs text-yellow-300">(5g × 75%)</p>
                             </div>
-                            <p id="m18" class="text-3xl font-bold text-yellow-400">$535.39</p>
+                            <p id="m18" class="text-xl sm:text-2xl md:text-3xl font-bold text-yellow-400">$535.39</p>
                         </div>
                     </div>
                 </div>
@@ -256,20 +351,20 @@
             </div>
 
             <!-- Calculator Section -->
-            <div class="gold-card p-6 rounded-2xl mb-6">
-                <h3 class="text-yellow-400 font-bold text-xl mb-5 border-b border-yellow-900/50 pb-3">
+            <div class="gold-card p-4 sm:p-6 rounded-xl sm:rounded-2xl mb-4 md:mb-6 mobile-mb-3">
+                <h3 class="text-yellow-400 font-bold text-lg sm:text-xl mb-3 sm:mb-5 border-b border-yellow-900/50 pb-2 sm:pb-3">
                     🧮 Gold Calculator
                 </h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <div class="mb-4">
-                            <label class="block text-gray-300 mb-2">Enter Amount:</label>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                    <div class="space-y-3 sm:space-y-4">
+                        <div>
+                            <label class="block text-gray-300 text-xs sm:text-sm mb-1">Enter Amount:</label>
                             <input type="number" id="calculate-amount" value="1" min="0.01" step="0.01" 
-                                   class="calculator-input">
+                                   class="calculator-input" inputmode="decimal">
                         </div>
                         
-                        <div class="mb-4">
-                            <label class="block text-gray-300 mb-2">Select Unit:</label>
+                        <div>
+                            <label class="block text-gray-300 text-xs sm:text-sm mb-1">Select Unit:</label>
                             <select id="calculate-unit" class="calculator-input">
                                 <option value="oz">Ounces (OZ)</option>
                                 <option value="g">Grams (g)</option>
@@ -279,8 +374,8 @@
                             </select>
                         </div>
                         
-                        <div class="mb-4">
-                            <label class="block text-gray-300 mb-2">Select Carat:</label>
+                        <div>
+                            <label class="block text-gray-300 text-xs sm:text-sm mb-1">Select Carat:</label>
                             <select id="calculate-carat" class="calculator-input">
                                 <option value="24">24 Carat (Pure Gold - 100%)</option>
                                 <option value="21">21 Carat (87.5% Gold)</option>
@@ -292,91 +387,91 @@
                         </div>
                         
                         <button onclick="calculateGoldValue()" 
-                                class="w-full p-4 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white font-bold rounded-lg hover:opacity-90 transition text-lg">
+                                class="w-full p-3 sm:p-4 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white font-bold rounded-lg hover:opacity-90 transition text-sm sm:text-base">
                             Calculate Value
                         </button>
                     </div>
                     
-                    <div class="p-6 rounded-lg bg-gradient-to-br from-yellow-900/30 to-yellow-800/20 border border-yellow-500/30">
-                        <p class="text-sm text-gray-300 mb-2">Calculation Result:</p>
-                        <p id="calculation-result" class="text-4xl font-bold text-yellow-400 mb-4">$4,440.80</p>
+                    <div class="p-4 sm:p-6 rounded-lg bg-gradient-to-br from-yellow-900/30 to-yellow-800/20 border border-yellow-500/30">
+                        <p class="text-gray-300 text-xs sm:text-sm mb-2">Calculation Result:</p>
+                        <p id="calculation-result" class="text-2xl sm:text-3xl md:text-4xl font-bold text-yellow-400 mb-3 sm:mb-4">$4,440.80</p>
                         
-                        <div class="space-y-2">
+                        <div class="space-y-1 sm:space-y-2">
                             <div class="flex justify-between">
-                                <span class="text-gray-300">Amount:</span>
-                                <span id="result-amount" class="text-white">1.00</span>
+                                <span class="text-gray-300 text-xs sm:text-sm">Amount:</span>
+                                <span id="result-amount" class="text-white text-xs sm:text-sm">1.00</span>
                             </div>
                             <div class="flex justify-between">
-                                <span class="text-gray-300">Unit:</span>
-                                <span id="result-unit" class="text-white">Ounces</span>
+                                <span class="text-gray-300 text-xs sm:text-sm">Unit:</span>
+                                <span id="result-unit" class="text-white text-xs sm:text-sm">Ounces</span>
                             </div>
                             <div class="flex justify-between">
-                                <span class="text-gray-300">Carat:</span>
-                                <span id="result-carat" class="text-white">24K</span>
+                                <span class="text-gray-300 text-xs sm:text-sm">Carat:</span>
+                                <span id="result-carat" class="text-white text-xs sm:text-sm">24K</span>
                             </div>
                             <div class="flex justify-between">
-                                <span class="text-gray-300">Purity:</span>
-                                <span id="result-purity" class="text-white">100.0%</span>
+                                <span class="text-gray-300 text-xs sm:text-sm">Purity:</span>
+                                <span id="result-purity" class="text-white text-xs sm:text-sm">100.0%</span>
                             </div>
                             <div class="flex justify-between">
-                                <span class="text-gray-300">Price per unit:</span>
-                                <span id="result-price-unit" class="text-white">$4,440.80</span>
+                                <span class="text-gray-300 text-xs sm:text-sm">Price per unit:</span>
+                                <span id="result-price-unit" class="text-white text-xs sm:text-sm">$4,440.80</span>
                             </div>
                         </div>
                         
-                        <div class="mt-6 pt-4 border-t border-yellow-500/30">
-                            <p id="calculation-detail" class="text-sm text-gray-400">1.00 Ounce × $4,440.80/oz = $4,440.80</p>
+                        <div class="mt-4 sm:mt-6 pt-3 sm:pt-4 border-t border-yellow-500/30">
+                            <p id="calculation-detail" class="text-xs sm:text-sm text-gray-400">1.00 Ounce × $4,440.80/oz = $4,440.80</p>
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- Chart Section -->
-            <div class="gold-card p-6 rounded-2xl mb-6">
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
-                    <h3 class="text-yellow-400 font-bold text-xl border-b border-yellow-900/50 pb-3 flex items-center gap-2">
+            <div class="gold-card p-4 sm:p-6 rounded-xl sm:rounded-2xl mb-4 md:mb-6 mobile-mb-3">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6">
+                    <h3 class="text-yellow-400 font-bold text-lg sm:text-xl border-b border-yellow-900/50 pb-2 sm:pb-3 flex items-center gap-2">
                         📈 Live Price Chart
                     </h3>
-                    <div class="flex flex-wrap gap-2 mt-3 md:mt-0">
-                        <button onclick="changeChartTimeframe('1D')" class="timeframe-btn active bg-yellow-500/40 text-white">1 Day</button>
-                        <button onclick="changeChartTimeframe('1W')" class="timeframe-btn bg-yellow-500/20 text-yellow-300">1 Week</button>
-                        <button onclick="changeChartTimeframe('1M')" class="timeframe-btn bg-yellow-500/20 text-yellow-300">1 Month</button>
-                        <button onclick="changeChartTimeframe('live')" class="timeframe-btn bg-yellow-500/20 text-yellow-300">Live (1s)</button>
+                    <div class="flex flex-wrap gap-1 sm:gap-2 mt-2 sm:mt-0">
+                        <button onclick="changeChartTimeframe('1D')" class="timeframe-btn active bg-yellow-500/40 text-white text-xs sm:text-sm">1D</button>
+                        <button onclick="changeChartTimeframe('1W')" class="timeframe-btn bg-yellow-500/20 text-yellow-300 text-xs sm:text-sm">1W</button>
+                        <button onclick="changeChartTimeframe('1M')" class="timeframe-btn bg-yellow-500/20 text-yellow-300 text-xs sm:text-sm">1M</button>
+                        <button onclick="changeChartTimeframe('live')" class="timeframe-btn bg-yellow-500/20 text-yellow-300 text-xs sm:text-sm">Live</button>
                     </div>
                 </div>
                 <div class="chart-container">
                     <canvas id="priceChart"></canvas>
                 </div>
-                <div class="mt-4 text-center text-sm text-gray-400">
+                <div class="mt-3 sm:mt-4 text-center text-xs sm:text-sm text-gray-400">
                     <p id="chart-info">Showing: Last 24 Hours | Updates every second</p>
                 </div>
             </div>
 
             <!-- Market Stats Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                <div class="gold-card p-4 rounded-xl">
-                    <p class="text-sm text-gray-400">24h Change</p>
-                    <p id="price-change-24h" class="text-2xl font-bold text-green-400">+15.80 (+0.36%)</p>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4 mb-4 md:mb-6">
+                <div class="gold-card p-3 sm:p-4 rounded-lg">
+                    <p class="text-xs sm:text-sm text-gray-400">24h Change</p>
+                    <p id="price-change-24h" class="text-lg sm:text-xl md:text-2xl font-bold text-green-400">+15.80</p>
                 </div>
-                <div class="gold-card p-4 rounded-xl">
-                    <p class="text-sm text-gray-400">Session High</p>
-                    <p id="session-high" class="text-2xl font-bold text-green-400">$4,440.80</p>
+                <div class="gold-card p-3 sm:p-4 rounded-lg">
+                    <p class="text-xs sm:text-sm text-gray-400">Session High</p>
+                    <p id="session-high" class="text-lg sm:text-xl md:text-2xl font-bold text-green-400">$4,440.80</p>
                 </div>
-                <div class="gold-card p-4 rounded-xl">
-                    <p class="text-sm text-gray-400">Session Low</p>
-                    <p id="session-low" class="text-2xl font-bold text-red-400">$4,440.80</p>
+                <div class="gold-card p-3 sm:p-4 rounded-lg">
+                    <p class="text-xs sm:text-sm text-gray-400">Session Low</p>
+                    <p id="session-low" class="text-lg sm:text-xl md:text-2xl font-bold text-red-400">$4,440.80</p>
                 </div>
-                <div class="gold-card p-4 rounded-xl">
-                    <p class="text-sm text-gray-400">Update Count</p>
-                    <p id="update-count" class="text-2xl font-bold text-yellow-400">0</p>
+                <div class="gold-card p-3 sm:p-4 rounded-lg">
+                    <p class="text-xs sm:text-sm text-gray-400">Updates</p>
+                    <p id="update-count" class="text-lg sm:text-xl md:text-2xl font-bold text-yellow-400">0</p>
                 </div>
             </div>
 
             <!-- Info Footer -->
-            <div class="mt-8 text-center text-sm text-gray-400">
-                <p>⚡ <strong class="text-green-400">REAL-TIME</strong> price updates every <strong class="text-green-400">1 SECOND</strong></p>
-                <p class="mt-2" id="connection-info">📡 Using simulated live data (realistic movement)</p>
-                <p class="mt-2">1 Ounce (OZ) = 31.1035 Grams | 1 Mithqal = 5 Grams | 1 Tola = 11.66 Grams</p>
+            <div class="mt-6 md:mt-8 text-center text-xs sm:text-sm text-gray-400 mobile-padding">
+                <p>⚡ <strong class="text-green-400">REAL-TIME</strong> updates every <strong class="text-green-400">1s</strong></p>
+                <p class="mt-1 sm:mt-2" id="connection-info">📡 Using simulated live data</p>
+                <p class="mt-1 sm:mt-2">1 OZ = 31.1035g | 1 Mithqal = 5g | 1 Tola = 11.66g</p>
             </div>
         </div>
     </div>
@@ -400,7 +495,7 @@
         function initialize() {
             console.log("Initializing application...");
             
-            // Hide loading, show dashboard (already visible)
+            // Hide loading, show dashboard
             document.getElementById('loading').style.display = 'none';
             document.getElementById('dashboard').style.display = 'block';
             
@@ -435,20 +530,18 @@
                 initialData.push({ x: time, y: price });
             }
             
+            // Responsive chart configuration
             priceChart = new Chart(ctx, {
                 type: 'line',
                 data: {
                     datasets: [{
-                        label: 'Gold Price (XAU/USD)',
+                        label: 'Gold Price',
                         data: initialData,
                         borderColor: '#ffd700',
                         backgroundColor: 'rgba(255, 215, 0, 0.1)',
-                        borderWidth: 3,
-                        pointBackgroundColor: '#ffd700',
-                        pointBorderColor: '#ffffff',
-                        pointBorderWidth: 2,
-                        pointRadius: 2,
-                        pointHoverRadius: 4,
+                        borderWidth: window.innerWidth < 768 ? 2 : 3,
+                        pointRadius: window.innerWidth < 768 ? 1 : 2,
+                        pointHoverRadius: window.innerWidth < 768 ? 3 : 4,
                         fill: true,
                         tension: 0.4
                     }]
@@ -458,7 +551,12 @@
                     maintainAspectRatio: false,
                     plugins: {
                         legend: {
-                            labels: { color: '#ffd700', font: { size: 14 } }
+                            labels: { 
+                                color: '#ffd700', 
+                                font: { 
+                                    size: window.innerWidth < 768 ? 12 : 14 
+                                } 
+                            }
                         },
                         tooltip: {
                             backgroundColor: 'rgba(26, 26, 46, 0.9)',
@@ -483,20 +581,34 @@
                             type: 'time',
                             time: { unit: 'minute' },
                             grid: { color: 'rgba(255, 255, 255, 0.1)' },
-                            ticks: { color: '#ffffff', maxTicksLimit: 6 }
+                            ticks: { 
+                                color: '#ffffff', 
+                                maxTicksLimit: window.innerWidth < 768 ? 4 : 6,
+                                font: {
+                                    size: window.innerWidth < 768 ? 10 : 12
+                                }
+                            }
                         },
                         y: {
                             grid: { color: 'rgba(255, 255, 255, 0.1)' },
                             ticks: {
                                 color: '#ffffff',
-                                callback: (value) => '$' + value.toFixed(2)
+                                callback: (value) => '$' + value.toFixed(2),
+                                font: {
+                                    size: window.innerWidth < 768 ? 10 : 12
+                                }
                             }
                         }
                     },
                     animation: {
-                        duration: 0 // Fast updates
+                        duration: 0
                     }
                 }
+            });
+            
+            // Update chart on resize
+            window.addEventListener('resize', function() {
+                priceChart.update();
             });
         }
         
@@ -504,9 +616,12 @@
         function updateAllPrices(price) {
             currentPrice = price;
             
-            // Update main price
-            document.getElementById('price-oz').textContent = 
+            // Format price for mobile/desktop
+            const formattedPrice = window.innerWidth < 640 ? 
+                `$${price.toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 0})}` :
                 `$${price.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            
+            document.getElementById('price-oz').textContent = formattedPrice;
             
             // Update derived prices
             const gramPrice24 = price / 31.1035;
@@ -517,13 +632,17 @@
             const mithqal21 = gramPrice21 * 5;
             const mithqal18 = gramPrice18 * 5;
             
-            document.getElementById('g24').textContent = `$${gramPrice24.toFixed(2)}`;
-            document.getElementById('g21').textContent = `$${gramPrice21.toFixed(2)}`;
-            document.getElementById('g18').textContent = `$${gramPrice18.toFixed(2)}`;
+            // Format for mobile
+            const formatPrice = (p) => window.innerWidth < 640 ? 
+                `$${p.toFixed(0)}` : `$${p.toFixed(2)}`;
             
-            document.getElementById('m24').textContent = `$${mithqal24.toFixed(2)}`;
-            document.getElementById('m21').textContent = `$${mithqal21.toFixed(2)}`;
-            document.getElementById('m18').textContent = `$${mithqal18.toFixed(2)}`;
+            document.getElementById('g24').textContent = formatPrice(gramPrice24);
+            document.getElementById('g21').textContent = formatPrice(gramPrice21);
+            document.getElementById('g18').textContent = formatPrice(gramPrice18);
+            
+            document.getElementById('m24').textContent = formatPrice(mithqal24);
+            document.getElementById('m21').textContent = formatPrice(mithqal21);
+            document.getElementById('m18').textContent = formatPrice(mithqal18);
             
             // Update session stats
             updateSessionStats(price);
@@ -534,8 +653,12 @@
             sessionHigh = Math.max(sessionHigh, price);
             sessionLow = Math.min(sessionLow, price);
             
-            document.getElementById('session-high').textContent = `$${sessionHigh.toFixed(2)}`;
-            document.getElementById('session-low').textContent = `$${sessionLow.toFixed(2)}`;
+            // Format for mobile
+            const formatStat = (p) => window.innerWidth < 640 ? 
+                `$${p.toFixed(0)}` : `$${p.toFixed(2)}`;
+            
+            document.getElementById('session-high').textContent = formatStat(sessionHigh);
+            document.getElementById('session-low').textContent = formatStat(sessionLow);
             
             updateCount++;
             document.getElementById('update-count').textContent = updateCount;
@@ -545,13 +668,11 @@
         function generatePriceMovement() {
             const hour = new Date().getHours();
             const isMarketHour = hour >= 8 && hour <= 18;
-            const volatility = isMarketHour ? 0.001 : 0.0005; // Higher during market hours
+            const volatility = isMarketHour ? 0.001 : 0.0005;
             
-            // Random walk with slight upward bias
             const change = (Math.random() - 0.48) * volatility * currentPrice;
             const newPrice = currentPrice + change;
             
-            // Keep within reasonable bounds
             const minPrice = BASE_PRICE * 0.995;
             const maxPrice = BASE_PRICE * 1.005;
             
@@ -571,12 +692,14 @@
                     mainCard.classList.remove('price-down');
                     mainCard.classList.add('price-up');
                     indicator.innerHTML = `<span class="text-green-400">▲ +$${change.toFixed(2)} (+${changePercent.toFixed(3)}%)</span>`;
-                    document.getElementById('last-change').textContent = `Last: +$${change.toFixed(2)}`;
+                    document.getElementById('last-change').textContent = window.innerWidth < 640 ? 
+                        `+$${change.toFixed(1)}` : `Last: +$${change.toFixed(2)}`;
                 } else {
                     mainCard.classList.remove('price-up');
                     mainCard.classList.add('price-down');
                     indicator.innerHTML = `<span class="text-red-400">▼ $${change.toFixed(2)} (${changePercent.toFixed(3)}%)</span>`;
-                    document.getElementById('last-change').textContent = `Last: $${change.toFixed(2)}`;
+                    document.getElementById('last-change').textContent = window.innerWidth < 640 ? 
+                        `$${change.toFixed(1)}` : `Last: $${change.toFixed(2)}`;
                 }
                 
                 setTimeout(() => {
@@ -610,8 +733,7 @@
             const now = new Date();
             const timeString = now.toLocaleTimeString('en-US', { 
                 hour: '2-digit', 
-                minute: '2-digit',
-                second: '2-digit'
+                minute: '2-digit'
             });
             document.getElementById('update-time').textContent = timeString;
         }
@@ -640,15 +762,11 @@
             
             // Start 1-second interval
             updateInterval = setInterval(updateGoldPrice, 1000);
-            
-            console.log("Live updates started - 1 second interval");
         }
         
         // Try real API
         async function tryRealAPI() {
             try {
-                console.log("Trying to connect to real API...");
-                
                 const response = await fetch(API_URL, {
                     headers: {
                         'x-access-token': API_KEY,
@@ -659,20 +777,19 @@
                 if (response.ok) {
                     const data = await response.json();
                     if (data.price) {
-                        console.log("Real API connected! Price:", data.price);
                         currentPrice = parseFloat(data.price);
                         updateAllPrices(currentPrice);
                         
                         // Update UI to show real API
-                        document.getElementById('mock-badge').textContent = '✅ Real API Data';
-                        document.getElementById('connection-info').textContent = '✅ Connected to GoldAPI.io | Real-time XAU/USD';
-                        document.getElementById('price-movement-info').textContent = 'Real API data active';
+                        document.getElementById('mock-badge').textContent = '✅ Real API';
+                        document.getElementById('connection-info').textContent = '✅ Real-time XAU/USD';
+                        document.getElementById('price-movement-info').textContent = 'Real API active';
                         
                         return true;
                     }
                 }
             } catch (error) {
-                console.log("API connection failed, using simulated data");
+                console.log("API offline, using simulated");
             }
             return false;
         }
@@ -717,19 +834,22 @@
                 const finalValue = pureGoldValue * purity;
                 const pricePerUnit = pricePerGram24K * purity * gramsPerUnit;
                 
+                // Format for mobile
+                const formatCurrency = (value) => window.innerWidth < 640 ? 
+                    `$${value.toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 0})}` :
+                    `$${value.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+                
                 // Update display
-                document.getElementById('calculation-result').textContent = 
-                    `$${finalValue.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+                document.getElementById('calculation-result').textContent = formatCurrency(finalValue);
                 
                 document.getElementById('result-amount').textContent = amount.toFixed(2);
                 document.getElementById('result-unit').textContent = unitLabels[unit];
                 document.getElementById('result-carat').textContent = caratLabels[carat];
                 document.getElementById('result-purity').textContent = `${(purity * 100).toFixed(1)}%`;
-                document.getElementById('result-price-unit').textContent = 
-                    `$${pricePerUnit.toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+                document.getElementById('result-price-unit').textContent = formatCurrency(pricePerUnit);
                 
                 document.getElementById('calculation-detail').textContent = 
-                    `${amount} ${unitLabels[unit]} × $${pricePerUnit.toFixed(2)}/${unit} = $${finalValue.toFixed(2)}`;
+                    `${amount} ${unitLabels[unit]} × ${formatCurrency(pricePerUnit)}/${unit} = ${formatCurrency(finalValue)}`;
                 
             } catch (error) {
                 console.error('Calculator error:', error);
@@ -755,13 +875,13 @@
                 '1D': 'Last 24 Hours',
                 '1W': 'Last 7 Days',
                 '1M': 'Last 30 Days',
-                'live': 'Live Updates (Last Hour)'
+                'live': 'Live Updates'
             };
             document.getElementById('chart-info').textContent = 
                 `Showing: ${infoText[timeframe]} | Updates every second`;
         }
         
-        // Set up event listeners when page loads
+        // Set up event listeners
         window.onload = function() {
             initialize();
             
@@ -773,7 +893,47 @@
             // Set default timeframe button
             document.querySelector('[onclick="changeChartTimeframe(\'1D\')"]')
                 .classList.add('active', 'bg-yellow-500/40', 'text-white');
+                
+            // Mobile-specific optimizations
+            if (window.innerWidth < 768) {
+                // Smaller font sizes for mobile
+                document.querySelectorAll('.text-3xl').forEach(el => {
+                    if (el.id !== 'price-oz') {
+                        el.classList.remove('text-3xl');
+                        el.classList.add('text-2xl');
+                    }
+                });
+                
+                // Adjust spacing
+                document.querySelectorAll('.mb-6').forEach(el => {
+                    el.classList.remove('mb-6');
+                    el.classList.add('mb-4');
+                });
+            }
         };
+        
+        // Handle orientation change
+        window.addEventListener('orientationchange', function() {
+            setTimeout(function() {
+                if (priceChart) {
+                    priceChart.resize();
+                }
+            }, 300);
+        });
+        
+        // Prevent zoom on double-tap
+        document.addEventListener('touchstart', function(event) {
+            if (event.touches.length > 1) {
+                event.preventDefault();
+            }
+        }, { passive: false });
+        
+        // Prevent pull-to-refresh on mobile
+        document.addEventListener('touchmove', function(event) {
+            if (event.scale !== 1) {
+                event.preventDefault();
+            }
+        }, { passive: false });
     </script>
 </body>
 </html>
